@@ -437,7 +437,7 @@ function Main({ profile, reloadProfile }) {
               {item.badge ? <span style={{ background: "#3B82F6", color: "#fff", borderRadius: 99, fontSize: 11, fontWeight: 900, padding: "2px 8px" }}>{item.badge}</span> : <span style={{ fontSize: 16, color: "rgba(255,255,255,.42)" }}>›</span>}
             </button>
           ))}
-          <div style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,.42)", padding: "14px 0", fontFamily: F }}>BetBuddy · private friends & family app · 21+</div>
+          <div style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,.42)", padding: "14px 0", fontFamily: F }}>BetBuddy · private friends & family app · 21+ · version {typeof __BUILD__ !== "undefined" ? __BUILD__ : "dev"}</div>
         </div>
       )}
 
