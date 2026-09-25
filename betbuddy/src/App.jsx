@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, configured, rpc, flushTexts } from "./lib/supabase.js";
-import { mapGame, mapWager, mapProfile, resizePhoto, SPORT_COLOR, shortName, FIELD_ENABLED } from "./lib/util.js";
-import { F, GOLD_BTN, Avatar, Toasts, ActivityDrawer, Empty, SectionLabel, PushCard } from "./components/ui.jsx";
+import { mapGame, mapWager, mapProfile, resizePhoto, SPORT_COLOR, shortName, matchupText, FIELD_ENABLED, ENABLED_SPORTS } from "./lib/util.js";
+import { setTeams, rankOf, hasRankings } from "./lib/teams.js";
+import { F, GOLD_BTN, Avatar, Toasts, ActivityDrawer, Empty, SectionLabel, PushCard, PhotoButton } from "./components/ui.jsx";
 import { pushState, enablePush, refreshPushSubscription } from "./lib/push.js";
 import { BetSlip, InboxCard, ChatDrawer, ActiveBetCard, CompletedBetRow, ShowcaseCard, DashBar } from "./components/bets.jsx";
 import { WalletSheet, AddFundsSheet, CashOutSheet } from "./components/wallet.jsx";
@@ -194,6 +195,13 @@ function Main({ profile, reloadProfile }) {
   };
   const hidePush = () => { safeLS.set("bb_push_later", String(Date.now() + 3 * 86400_000)); setPushHidden(true); };
 
+  // Team names, logos and AP ranks (refreshed server-side twice a day)
+  const [, setTeamsVer] = useState(0);
+  useEffect(() => {
+    supabase.from("teams").select("league,name_key,short_name,abbr,color,logo,rank").limit(2000)
+      .then(({ data }) => { if (data?.length) { setTeams(data); setTeamsVer((v) => v + 1); } });
+  }, []);
+
   /* ─── Derived ───────────────────────────────────────────────────── */
   const contacts = useMemo(() => Object.fromEntries(profiles.map((p) => [p.id, mapProfile(p)])), [profiles]);
   const gamesById = useMemo(() => Object.fromEntries(games.map((g) => [g.id, g])), [games]);
@@ -212,12 +220,16 @@ function Main({ profile, reloadProfile }) {
   };
 
   const now = Date.now();
-  const board = games.filter((g) => !g.settled && g.status !== "final" && new Date(g.date).getTime() > now - 4 * 3600_000 && (sportFilter === "ALL" || g.sport === sportFilter));
+  // College games: only ones with an AP Top 25 team (once rankings are loaded)
+  const onBoard = (g) => ENABLED_SPORTS.includes(g.sport) &&
+    (!["NCAAF", "NCAAB"].includes(g.sport) || !hasRankings(g.sport) || rankOf(g.sport, g.home) || rankOf(g.sport, g.away));
+  const board = games.filter((g) => onBoard(g) && !g.settled && g.status !== "final" && new Date(g.date).getTime() > now - 4 * 3600_000 && (sportFilter === "ALL" || g.sport === sportFilter));
   const upcoming = board.filter((g) => new Date(g.date).getTime() > now);
   const live = board.filter((g) => new Date(g.date).getTime() <= now);
   const primetime = upcoming.filter((g) => g.importance >= 3);
-  const rest = upcoming.filter((g) => g.importance < 3);
-  const sportsAvail = ["ALL", ...Object.keys(SPORT_COLOR).filter((s) => games.some((g) => g.sport === s))];
+  const matchups = upcoming.filter((g) => g.kind === "h2h");
+  const rest = upcoming.filter((g) => g.importance < 3 && g.kind !== "h2h");
+  const sportsAvail = ["ALL", ...ENABLED_SPORTS.filter((s) => games.some((g) => g.sport === s && onBoard(g)))];
 
   /* ─── Actions ───────────────────────────────────────────────────── */
   const run = async (fn, after) => {
@@ -229,7 +241,7 @@ function Main({ profile, reloadProfile }) {
       toast(to ? "BET_RECEIVED" : "FIELD_LOCKED", to ? `Challenge sent to ${contacts[to]?.name.split(" ")[0]}!` : "Posted to The Field 🎲", "Your stake is held until they respond", amount);
       setTab("inbox");
     });
-  const acceptWager = (w) => run(() => rpc("accept_wager", { p_id: w.id }), () => { toast("BET_ACCEPTED", `Locked in! $${w.amount} on the line`, `${shortName(w.game.away)} @ ${shortName(w.game.home)}`, w.amount); setTab("home"); });
+  const acceptWager = (w) => run(() => rpc("accept_wager", { p_id: w.id }), () => { toast("BET_ACCEPTED", `Locked in! $${w.amount} on the line`, matchupText(w.game), w.amount); setTab("home"); });
   const denyWager = (w) => run(() => rpc("decline_wager", { p_id: w.id }), () => toast("BET_DECLINED", "Challenge declined", `$${w.amount} returned to ${contacts[w.from]?.name.split(" ")[0]}`));
   const counterWager = (w, amt) => run(() => rpc("counter_wager", { p_id: w.id, p_amount: amt }), () => toast("BET_COUNTER", `Counter of $${amt} sent`, "Their original stake was refunded"));
   const cancelWager = (w) => run(() => rpc("cancel_wager", { p_id: w.id }), () => toast("WAGER_CANCELLED", "Challenge cancelled", `$${w.amount} back in your balance`));
@@ -381,7 +393,8 @@ function Main({ profile, reloadProfile }) {
           </div>
           {board.length === 0 && <div style={{ textAlign: "center", padding: "40px 20px", color: "rgba(255,255,255,.52)", fontFamily: F, fontSize: 14 }}>No games posted{sportFilter !== "ALL" ? ` for ${sportFilter}` : ""} yet.<br /><span style={{ fontSize: 12 }}>Lines refresh a few times a day.</span></div>}
           {primetime.length > 0 && <><SectionLabel color="rgba(212,168,67,.75)">🔥 PRIMETIME</SectionLabel>{primetime.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
-          {rest.length > 0 && <><SectionLabel style={{ marginTop: primetime.length ? 14 : 0 }}>UPCOMING</SectionLabel>{rest.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
+          {matchups.length > 0 && <><SectionLabel color="rgba(163,230,53,.8)" style={{ marginTop: primetime.length ? 14 : 0 }}>⛳🏎 HEAD-TO-HEAD MATCHUPS · EVEN MONEY</SectionLabel>{matchups.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
+          {rest.length > 0 && <><SectionLabel style={{ marginTop: primetime.length || matchups.length ? 14 : 0 }}>UPCOMING</SectionLabel>{rest.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
           {live.length > 0 && <><SectionLabel color="rgba(61,214,140,.7)" style={{ marginTop: 14 }}>IN PROGRESS</SectionLabel>{live.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
         </div>
       )}
@@ -393,7 +406,8 @@ function Main({ profile, reloadProfile }) {
             <Avatar contact={meContact} size={60} showRing onUpload={uploadPhoto} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 800, fontSize: 18 }}>{profile.name}</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,.57)" }}>{profile.venmo ? `@${profile.venmo}` : "Tap photo to change"}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,.57)" }}>{profile.venmo ? `@${profile.venmo}` : ""}</div>
+              <PhotoButton onFile={uploadPhoto} hasPhoto={!!profile.photo_url} />
               <div style={{ display: "flex", gap: 14, marginTop: 6 }}>
                 {[["Available", wallet.available, "#D4A843"], ["Locked", wallet.locked, "#F97316"], ["Pending", wallet.pending, "#A855F7"]].map(([l, v, c]) => (
                   <div key={l}><div style={{ fontSize: 15, fontWeight: 900, color: c, lineHeight: 1 }}>${v}</div><div style={{ fontSize: 9, color: "rgba(255,255,255,.57)" }}>{l}</div></div>

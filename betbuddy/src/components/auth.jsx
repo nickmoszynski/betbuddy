@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { F, GOLD_BTN, Avatar, Label, inputStyle, BigButton } from "./ui.jsx";
+import { F, GOLD_BTN, Avatar, Label, inputStyle, BigButton, PhotoButton } from "./ui.jsx";
 import { COLORS } from "./crew.jsx";
 import { supabase } from "../lib/supabase.js";
-import { fmtPhone, initials } from "../lib/util.js";
+import { fmtPhone, initials, resizePhoto } from "../lib/util.js";
 
 export function Wordmark({ big }) {
   const s = big ? 1.6 : 1;
@@ -83,11 +83,16 @@ export function Onboarding({ profile, onSave }) {
   const [color, setColor] = useState(COLORS[Math.floor(Math.random() * COLORS.length)]);
   const [venmo, setVenmo] = useState("");
   const [age, setAge] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const pick = async (f) => { try { setPhoto(await resizePhoto(f)); } catch { /* ignore bad image */ } };
   const [busy, setBusy] = useState(false);
   return (
     <Shell>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 26 }}>
-        <Avatar contact={{ name, color, initials: initials(name) }} size={76} showRing />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Avatar contact={{ name, color, initials: initials(name), photo }} size={76} showRing onUpload={pick} />
+          <PhotoButton onFile={pick} hasPhoto={!!photo} />
+        </div>
       </div>
       <div style={{ fontFamily: F, fontSize: 24, fontWeight: 900, marginBottom: 4, textAlign: "center" }}>Welcome to BetBuddy</div>
       <div style={{ fontFamily: F, fontSize: 14, color: "rgba(255,255,255,.5)", marginBottom: 24, textAlign: "center" }}>What should your buddies call you?</div>
@@ -103,7 +108,7 @@ export function Onboarding({ profile, onSave }) {
         <input type="checkbox" checked={age} onChange={(e) => setAge(e.target.checked)} style={{ width: 20, height: 20, accentColor: "#D4A843" }} />
         I'm 21 or older
       </label>
-      <BigButton disabled={!name.trim() || !age || busy} onClick={async () => { setBusy(true); await onSave({ name: name.trim(), color, venmo: venmo.trim().replace(/^@/, "") || null }); setBusy(false); }}>{busy ? "Saving…" : "Let's go →"}</BigButton>
+      <BigButton disabled={!name.trim() || !age || busy} onClick={async () => { setBusy(true); await onSave({ name: name.trim(), color, venmo: venmo.trim().replace(/^@/, "") || null, ...(photo ? { photo_url: photo } : {}) }); setBusy(false); }}>{busy ? "Saving…" : "Let's go →"}</BigButton>
     </Shell>
   );
 }

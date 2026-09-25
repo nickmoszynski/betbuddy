@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { getTeam } from "../lib/teams.js";
 import { timeAgo } from "../lib/util.js";
 
@@ -52,10 +52,27 @@ export function Avatar({ contact, size = 38, showRing = false, onUpload = null }
   );
 }
 
-export function TeamLogo({ teamName = "", size = 52 }) {
-  const t = getTeam(teamName);
+const BROKEN = new Set(); // logo URLs that failed to load → fall back to the colored badge
+export function TeamLogo({ teamName = "", size = 52, person = false }) {
+  const [, bump] = useState(0);
   const r = size * 0.28;
+  if (person) {
+    // Golfers / drivers: initials on a neutral tile
+    const ini = teamName.replace(/\s+(Jr\.?|Sr\.?|II|III|IV)$/, "").split(/\s+/).filter(Boolean);
+    const txt = ((ini[0]?.[0] || "") + (ini.length > 1 ? ini[ini.length - 1][0] : "")).toUpperCase();
+    return (
+      <div style={{ width: size, height: size, borderRadius: "50%", flexShrink: 0, background: "linear-gradient(145deg,#3A3F4F,#232733)", border: "1.5px solid rgba(255,255,255,.18)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: F, fontWeight: 900, fontSize: size * 0.34, color: "#F0EDE8", letterSpacing: "-0.5px" }}>{txt || "?"}</div>
+    );
+  }
+  const t = getTeam(teamName);
   const fs = size <= 30 ? size * 0.34 : size <= 44 ? size * 0.27 : size * 0.22;
+  if (t.logo && !BROKEN.has(t.logo)) {
+    return (
+      <div style={{ width: size, height: size, borderRadius: r, flexShrink: 0, background: "linear-gradient(145deg,#262A36,#1A1D26)", border: `1.5px solid ${t.color || "#444"}55`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+        <img src={t.logo} alt={teamName} loading="lazy" onError={() => { BROKEN.add(t.logo); bump((n) => n + 1); }} style={{ width: size * 0.8, height: size * 0.8, objectFit: "contain", filter: "drop-shadow(0 1px 2px rgba(0,0,0,.5))" }} />
+      </div>
+    );
+  }
   return (
     <div style={{ width: size, height: size, borderRadius: r, flexShrink: 0, background: `linear-gradient(145deg,${t.color}ee,${t.color}aa)`, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", boxShadow: `0 4px 20px ${t.color}40` }}>
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg,rgba(255,255,255,.12) 0%,transparent 60%)", pointerEvents: "none" }} />
@@ -232,5 +249,15 @@ export function PushCard({ state, onEnable, onDismiss }) {
       </div>
       <button onClick={onEnable} style={{ padding: "11px 16px", background: GOLD_BTN, border: "none", borderRadius: 11, fontWeight: 800, fontSize: 13, color: "#0A0B0F", cursor: "pointer", fontFamily: F, flexShrink: 0 }}>Turn on</button>
     </div>
+  );
+}
+
+// Visible "add / change photo" button (opens the phone's camera roll)
+export function PhotoButton({ onFile, hasPhoto }) {
+  return (
+    <label style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 20, border: "1.5px solid rgba(232,168,56,.45)", color: "#E8A838", fontFamily: F, fontSize: 11, fontWeight: 800, cursor: "pointer", marginTop: 6 }}>
+      📷 {hasPhoto ? "Change photo" : "Add your photo"}
+      <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+    </label>
   );
 }

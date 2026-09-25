@@ -1,6 +1,6 @@
 // Admin-only "Refresh games now" button. Verifies the caller is an admin
 // using their Supabase session token, then runs a full sync immediately.
-import { db, syncOdds, syncScores, flushSms, flushPush } from "./lib/server.mjs";
+import { db, syncOdds, syncScores, flushSms, flushPush, syncTeams, syncH2H, settleH2H } from "./lib/server.mjs";
 
 export default async (req) => {
   const token = (req.headers.get("authorization") || "").replace(/^Bearer /, "");
@@ -12,8 +12,11 @@ export default async (req) => {
 
   const log = [];
   try {
-    await syncOdds(sb, (m) => log.push(m));
-    await syncScores(sb, (m) => log.push(m));
+    const add = (m) => log.push(m);
+    await syncTeams(sb, add);
+    if (process.env.ODDS_API_KEY) { await syncOdds(sb, add); await syncScores(sb, add); }
+    await syncH2H(sb, add);
+    await settleH2H(sb, add);
     await flushPush(sb, (m) => log.push(m));
     await flushSms(sb, (m) => log.push(m));
     return Response.json({ ok: true, log });

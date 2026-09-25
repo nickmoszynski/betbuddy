@@ -91,6 +91,7 @@ export function HowItWorks({ onClose }) {
     ["⏱", "Kickoff deadline", "Challenges nobody accepted by game time are cancelled and refunded automatically."],
     ["⚡", "Auto-settle", "When the game goes final, the app grades the bet and pays the winner — usually within minutes."],
     FIELD_ENABLED && ["🎲", "The Field", "Post a bet to your whole crew. First person to take the other side locks it in."],
+    ["⛳", "Golf & F1 matchups", "Head-to-head matchups (e.g. Scheffler vs McIlroy, lower Round 3 score) come from Kalshi's markets. We only list ones priced close to 50/50, and Kalshi's official result settles the bet automatically. A tie is a push."],
     ["🤝", "Always 1-on-1", "Every bet is you against one named buddy who has to accept it. Nobody else — and no house — is ever on the other side."],
   ].filter(Boolean);
   return (

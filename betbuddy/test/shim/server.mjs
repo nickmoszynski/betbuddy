@@ -11,6 +11,7 @@ const jwt = (sub, role = "authenticated") => `${b64({ alg: "HS256", typ: "JWT" }
 const claims = (auth) => { try { return JSON.parse(Buffer.from(auth.replace(/^Bearer /, "").split(".")[1], "base64url")); } catch { return null; } };
 const ident = (s) => { if (!/^[a-z_][a-z0-9_]*$/i.test(s)) throw new Error("bad identifier " + s); return `"${s}"`; };
 const EMBED = { games: ["games", "game_id"] };
+const toDb = (v) => (v && typeof v === "object" && !Array.isArray(v) ? JSON.stringify(v) : v);
 
 async function asUser(req, fn) {
   const c = claims(req.headers.authorization || "");
@@ -31,6 +32,7 @@ function parseFilters(params, vals) {
   const where = [];
   const cond = (col, opval) => {
     const i = opval.indexOf("."); const op = opval.slice(0, i); let v = opval.slice(i + 1);
+    if (op === "not") return `not (${cond(col, v)})`;
     const c = ident(col);
     if (op === "is") return `${c} is ${v === "null" ? "null" : v === "true" ? "true" : "false"}`;
     if (op === "in") { const list = v.replace(/^\(|\)$/g, "").split(",").map((x) => x.replace(/^"|"$/g, "")); vals.push(list); return `${c} = any($${vals.length})`; }
@@ -126,7 +128,7 @@ http.createServer(async (req, res) => {
     }
     if (req.method === "PATCH") {
       const cols = Object.keys(body);
-      const set = cols.map((k) => { vals.push(body[k]); return `${ident(k)} = $${vals.length}`; }).join(", ");
+      const set = cols.map((k) => { vals.push(toDb(body[k])); return `${ident(k)} = $${vals.length}`; }).join(", ");
       r = await asUser(req, (c) => c.query(`update public.${table} t set ${set}${where} returning *`, vals));
     } else if (req.method === "DELETE") {
       r = await asUser(req, (c) => c.query(`delete from public.${table} t${where} returning *`, vals));
@@ -135,9 +137,9 @@ http.createServer(async (req, res) => {
       if (!rows.length) return send(res, 201, []);
       const cols = [...new Set(rows.flatMap(Object.keys))];
       const v2 = [];
-      const tuples = rows.map((row) => "(" + cols.map((c) => { v2.push(row[c] ?? null); return `$${v2.length}`; }).join(",") + ")").join(",");
-      const conflictCol = ident(url.searchParams.get("on_conflict") || (tm[1] === "sync_state" ? "key" : "id"));
-      const upsert = prefer.includes("ignore-duplicates") ? ` on conflict (${conflictCol}) do nothing` : prefer.includes("merge-duplicates") ? ` on conflict (${ident(url.searchParams.get("on_conflict") || (tm[1] === "sync_state" ? "key" : "id"))}) do update set ${cols.map((c) => `${ident(c)} = excluded.${ident(c)}`).join(", ")}` : "";
+      const tuples = rows.map((row) => "(" + cols.map((c) => { v2.push(toDb(row[c] ?? null)); return `$${v2.length}`; }).join(",") + ")").join(",");
+      const conflictCol = (url.searchParams.get("on_conflict") || (tm[1] === "sync_state" ? "key" : "id")).split(",").map(ident).join(",");
+      const upsert = prefer.includes("ignore-duplicates") ? ` on conflict (${conflictCol}) do nothing` : prefer.includes("merge-duplicates") ? ` on conflict (${conflictCol}) do update set ${cols.map((c) => `${ident(c)} = excluded.${ident(c)}`).join(", ")}` : "";
       r = await asUser(req, (c) => c.query(`insert into public.${table} as t (${cols.map(ident).join(",")}) values ${tuples}${upsert} returning *`, v2));
     }
     if (!wantRows) return send(res, req.method === "POST" ? 201 : 204);

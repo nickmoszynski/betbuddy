@@ -3,8 +3,9 @@
 Peer-to-peer sports wagers for a private crew of friends and family. There's no house and no vig: you bet a buddy, and the winner takes the pot.
 
 - **Sign in** with a text-message code (no passwords)
-- **Games** with real point spreads (NFL, college football, NBA, college basketball, MLB, NHL) from The Odds API
-- **Challenge** a buddy, post to **The Field**, or **accept / decline / counter** incoming challenges
+- **Games** with real point spreads (NFL, NBA, and AP Top 25 college football and basketball) from The Odds API, with team logos
+- **Golf & F1 head-to-head matchups** from Kalshi: even-money only, auto-settled from Kalshi's official results
+- **Challenge** a buddy 1-on-1, or **accept / decline / counter** incoming challenges
 - **Auto-settle** when the game goes final, including pushes
 - **BuddyBucks** wallet (1 = $1): Venmo deposits and cash-outs confirmed by the admin ("The Bank")
 - **Push notifications** to the lock screen for every challenge, result, and payout

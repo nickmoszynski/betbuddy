@@ -19,7 +19,7 @@ export const SPORTS = {
   nhl:   { key: "icehockey_nhl",          label: "NHL"   },
 };
 const enabledSports = () =>
-  env("SPORTS", "nfl,ncaaf,nba,ncaab,mlb,nhl").split(",").map((s) => s.trim().toLowerCase()).filter((s) => SPORTS[s]);
+  env("SPORTS", "nfl,ncaaf,nba,ncaab").split(",").map((s) => s.trim().toLowerCase()).filter((s) => SPORTS[s]);
 
 const BOOK_PREF = ["draftkings", "fanduel", "betmgm", "caesars", "espnbet", "betrivers", "bovada"];
 const ODDS = "https://api.the-odds-api.com/v4";
@@ -61,6 +61,7 @@ export async function syncOdds(sb, log) {
   const { data: active } = await oddsGet("/sports"); // free call
   const activeKeys = new Set(active.filter((s) => s.active).map((s) => s.key));
   const now = new Date();
+  const ranked = await rankedSets(sb);
   for (const code of enabledSports()) {
     const sport = SPORTS[code];
     if (!activeKeys.has(sport.key)) continue;
@@ -68,7 +69,10 @@ export async function syncOdds(sb, log) {
       regions: "us", markets: "spreads", oddsFormat: "american", dateFormat: "iso",
       commenceTimeTo: isoNoMs(new Date(now.getTime() + 8 * 86400_000)),
     });
-    const upcoming = events.filter((e) => new Date(e.commence_time) > now);
+    let upcoming = events.filter((e) => new Date(e.commence_time) > now);
+    // College: only games with an AP Top 25 team (once rankings have loaded)
+    const set = ranked[sport.label];
+    if (set && set.size) upcoming = upcoming.filter((e) => set.has(norm(e.home_team)) || set.has(norm(e.away_team)));
     if (!upcoming.length) continue;
 
     // Never touch games that already started
@@ -108,7 +112,7 @@ export async function syncScores(sb, log) {
 
   const { data: bets } = await sb.from("wagers").select("game_id").eq("status", "locked").in("game_id", open.map((g) => g.id));
   const withBets = new Set((bets || []).map((b) => b.game_id));
-  const sportKeys = [...new Set(open.filter((g) => withBets.has(g.id)).map((g) => g.sport_key))];
+  const sportKeys = [...new Set(open.filter((g) => withBets.has(g.id)).map((g) => g.sport_key))].filter((k) => !k.startsWith("kalshi:"));
   const byId = new Map(open.map((g) => [g.id, g]));
 
   for (const key of sportKeys) {
@@ -131,6 +135,156 @@ export async function syncScores(sb, log) {
     log(`scores ${key} (${remaining} API credits left)`);
   }
 
+}
+
+// ── Team names, logos & AP rankings (ESPN, refreshed a couple of times a day) ──
+export const norm = (t = "") => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const ESPN = "https://site.api.espn.com/apis/site/v2/sports";
+const LEAGUES = {
+  NFL:   { path: "football/nfl" },
+  NBA:   { path: "basketball/nba" },
+  NCAAF: { path: "football/college-football", college: true, groups: 80 },
+  NCAAB: { path: "basketball/mens-college-basketball", college: true, groups: 50 },
+};
+const leagueOf = (label) => LEAGUES[label]?.path.split("/")[1];
+async function getJSON(url) {
+  const res = await fetch(url, { headers: { "user-agent": "BetBuddy/1.0" } });
+  if (!res.ok) throw new Error(`${url} → ${res.status}`);
+  return res.json();
+}
+
+export async function syncTeams(sb, log = () => {}) {
+  const now = new Date().toISOString();
+  for (const [label, L] of Object.entries(LEAGUES)) {
+    try {
+      const league = leagueOf(label);
+      const j = await getJSON(`${ESPN}/${L.path}/teams?limit=1000${L.groups ? `&groups=${L.groups}` : ""}`);
+      const teams = (j.sports?.[0]?.leagues?.[0]?.teams || []).map((x) => x.team).filter(Boolean);
+      const ranks = new Map();
+      if (L.college) {
+        const rk = await getJSON(`${ESPN}/${L.path}/rankings`).catch(() => null);
+        const ap = rk?.rankings?.find((x) => /^AP/i.test(x.name || "")) || rk?.rankings?.[0];
+        for (const k of ap?.ranks || []) {
+          if (!k.team) continue;
+          ranks.set(norm(`${k.team.location} ${k.team.name}`), k.current);
+          // A ranked team outside the default list still gets a row
+          if (!teams.some((t) => norm(t.displayName) === norm(`${k.team.location} ${k.team.name}`)))
+            teams.push({ displayName: `${k.team.location} ${k.team.name}`, location: k.team.location, name: k.team.name, abbreviation: k.team.abbreviation, color: k.team.color, logos: k.team.logos });
+        }
+      }
+      const rows = teams.map((t) => ({
+        league, name_key: norm(t.displayName), full_name: t.displayName,
+        short_name: L.college ? (t.location || t.displayName) : (t.name || t.shortDisplayName || t.displayName),
+        abbr: t.abbreviation || null, color: t.color ? `#${t.color}` : null, alt_color: t.alternateColor ? `#${t.alternateColor}` : null,
+        logo: (t.logos || []).find((l) => (l.rel || []).includes("dark"))?.href || t.logos?.[0]?.href || null, rank: ranks.get(norm(t.displayName)) ?? null, updated_at: now,
+      }));
+      const uniq = [...new Map(rows.map((r) => [r.name_key, r])).values()];
+      for (let i = 0; i < uniq.length; i += 500) {
+        const { error } = await sb.from("teams").upsert(uniq.slice(i, i + 500), { onConflict: "league,name_key" });
+        if (error) throw error;
+      }
+      log(`${label}: ${uniq.length} teams${L.college ? `, ${ranks.size} ranked` : ""}`);
+    } catch (e) { log(`teams ${label} failed: ${e.message}`); }
+  }
+}
+
+// { NCAAF: Set(name_key of ranked teams), NCAAB: ... } — empty until rankings load
+async function rankedSets(sb) {
+  const out = {};
+  for (const label of ["NCAAF", "NCAAB"]) {
+    const { data } = await sb.from("teams").select("name_key").eq("league", leagueOf(label)).not("rank", "is", null);
+    out[label] = new Set((data || []).map((r) => r.name_key));
+  }
+  return out;
+}
+
+// ── Head-to-head matchups from Kalshi (golf rounds, F1 when listed) ─────
+// Source of truth for both the price (only near-even matchups are listed) and the result.
+const KALSHI = () => env("KALSHI_API", "https://external-api.kalshi.com/trade-api/v2");
+const h2hSeries = () => Object.fromEntries(
+  env("H2H_SERIES", "KXPGAH2H:GOLF,KXLIVH2H:GOLF,KXDPWTH2H:GOLF,KXGOLFH2H:GOLF,KXF1H2H:F1").split(",").map((x) => x.trim().split(":")).filter((x) => x[0] && x[1])
+);
+const kPrice = (m) => {
+  const b = Number(m.yes_bid_dollars), a = Number(m.yes_ask_dollars), l = Number(m.last_price_dollars);
+  if (b > 0 && a > 0 && a < 1 && a >= b) return (a + b) / 2;
+  return l > 0 && l < 1 ? l : null;
+};
+const MATCH_RE = /^Will (.+?) (?:beat|finish (?:ahead of|higher than|above)|outscore|outperform|outlast) (.+?) (?:in|at|during) (?:the )?(.+?)\??$/i;
+export function parseH2HMarket(m) {
+  const x = MATCH_RE.exec((m.title || "").trim());
+  if (!x) return null;
+  return { player: x[1].trim(), opponent: x[2].trim(), context: x[3].trim() };
+}
+export function h2hTitle(context = "") {
+  const c = context.replace(/\?$/, "");
+  const m = /^(\d)(?:st|nd|rd|th) round of (?:the )?(.+)$/i.exec(c);
+  if (m) return `Round ${m[1]} · ${m[2]}`;
+  return c.charAt(0).toUpperCase() + c.slice(1);
+}
+
+export async function syncH2H(sb, log = () => {}) {
+  const now = Date.now();
+  const maxEdge = Number(env("H2H_MAX_EDGE", 0.1)); // 0.1 → only matchups priced 40%–60%
+  for (const [series, sport] of Object.entries(h2hSeries())) {
+    try {
+      let cursor = "", pages = 0, kept = 0, seen = 0;
+      const rows = [];
+      do {
+        const j = await getJSON(`${KALSHI()}/events?series_ticker=${series}&status=open&with_nested_markets=true&limit=200${cursor ? `&cursor=${cursor}` : ""}`);
+        cursor = j.cursor || "";
+        for (const ev of j.events || []) {
+          const ms = ev.markets || [];
+          if (ms.length !== 2) continue;
+          seen++;
+          const [p0, p1] = ms.map(parseH2HMarket);
+          if (!p0 || !p1 || norm(p0.player) !== norm(p1.opponent)) continue;
+          const pa = kPrice(ms[0]), pb = kPrice(ms[1]);
+          if (pa == null || pb == null) continue;
+          const pA = pa / (pa + pb);
+          if (Math.abs(pA - 0.5) > maxEdge) continue;
+          const lock = ms[0].occurrence_datetime || ms[0].expected_expiration_time;
+          const t = lock ? new Date(lock).getTime() : NaN;
+          if (!Number.isFinite(t) || t <= now + 5 * 60_000 || t > now + 8 * 86400_000) continue;
+          rows.push({
+            id: ev.event_ticker, sport, sport_key: `kalshi:${series}`, kind: "h2h",
+            away: p0.player, home: p1.player, fav_team: p0.player, spread: 0,
+            commence_time: new Date(t).toISOString(), title: h2hTitle(p0.context),
+            ext: { source: "kalshi", a: { ticker: ms[0].ticker, p: Math.round(pA * 100) / 100 }, b: { ticker: ms[1].ticker, p: Math.round((1 - pA) * 100) / 100 } },
+            updated_at: new Date().toISOString(),
+          });
+          kept++;
+        }
+      } while (cursor && ++pages < 5);
+      if (rows.length) {
+        const { data: existing } = await sb.from("games").select("id,status").in("id", rows.map((r) => r.id));
+        const started = new Set((existing || []).filter((g) => g.status !== "upcoming").map((g) => g.id));
+        const fresh = rows.filter((r) => !started.has(r.id));
+        if (fresh.length) { const { error } = await sb.from("games").upsert(fresh); if (error) throw error; }
+      }
+      log(`${series}: ${kept} even matchups of ${seen}`);
+    } catch (e) { log(`h2h ${series} failed: ${e.message}`); }
+  }
+}
+
+export async function settleH2H(sb, log = () => {}) {
+  const { data: games } = await sb.from("games").select("id,away,home,ext").eq("kind", "h2h").eq("settled", false)
+    .lte("commence_time", new Date().toISOString()).limit(60);
+  for (const g of games || []) {
+    try {
+      const j = await getJSON(`${KALSHI()}/markets?event_ticker=${encodeURIComponent(g.id)}`);
+      const ms = j.markets || [];
+      const a = ms.find((m) => m.ticker === g.ext?.a?.ticker), b = ms.find((m) => m.ticker === g.ext?.b?.ticker);
+      if (!a || !b) continue;
+      const done = (m) => ["finalized", "settled", "determined"].includes(m.status) && m.result && m.result !== "";
+      if (!done(a) || !done(b)) continue;
+      const away = a.result === "yes" && b.result !== "yes" ? 1 : 0;   // player A won
+      const home = b.result === "yes" && a.result !== "yes" ? 1 : 0;   // player B won; anything else = push
+      await sb.from("games").update({ status: "final", away_score: away, home_score: home, updated_at: new Date().toISOString() }).eq("id", g.id).eq("settled", false);
+      const { data: n, error } = await sb.rpc("settle_game", { p_game_id: g.id });
+      if (error) log(`settle ${g.id} failed: ${error.message}`);
+      else log(`Settled ${g.away} vs ${g.home}: ${away ? g.away : home ? g.home : "tie"} (${n} bets)`);
+    } catch (e) { log(`settle ${g.id}: ${e.message}`); }
+  }
 }
 
 // ── Push notifications ────────────────────────────────────────────────
@@ -214,6 +368,15 @@ export async function tick(log = console.log) {
   await step("live", async () => {
     await sb.from("games").update({ status: "live" }).eq("status", "upcoming").lte("commence_time", new Date().toISOString());
     await sb.rpc("expire_started");
+  });
+  await step("teams", async () => {
+    if (await due(sb, "teams", Number(env("TEAMS_REFRESH_MINUTES", 720)))) { await mark(sb, "teams"); await syncTeams(sb, log); }
+  });
+  await step("h2h", async () => {
+    if (await due(sb, "h2h", Number(env("H2H_REFRESH_MINUTES", 30)))) { await mark(sb, "h2h"); await syncH2H(sb, log); }
+  });
+  await step("h2h-settle", async () => {
+    if (await due(sb, "h2h_settle", Number(env("SCORES_REFRESH_MINUTES", 10)))) { await mark(sb, "h2h_settle"); await settleH2H(sb, log); }
   });
   if (env("ODDS_API_KEY")) {
     await step("odds", async () => {

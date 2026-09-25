@@ -142,7 +142,29 @@ export const TEAM_DATA = Object.fromEntries(
 const PALETTE = ["#1D428A", "#8B1E3F", "#0B6E4F", "#5B2A86", "#9C4A00", "#00507A", "#7A1F1F", "#2F4858", "#6B4E16", "#23395B"];
 const hash = (s) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
+export const normName = (t = "") => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const LEAGUE = { NFL: "nfl", NBA: "nba", NCAAF: "college-football", NCAAB: "mens-college-basketball" };
+let REG = {};            // name_key → { short, abbr, color, logo }
+let RANKS = {};          // league → { name_key → rank }
+export function setTeams(rows = []) {
+  const reg = {}, ranks = {};
+  for (const r of rows) {
+    const cur = reg[r.name_key];
+    if (!cur || (!cur.logo && r.logo)) reg[r.name_key] = { short: r.short_name, abbr: r.abbr, color: r.color, logo: r.logo };
+    if (r.rank) (ranks[r.league] ||= {})[r.name_key] = r.rank;
+  }
+  REG = reg; RANKS = ranks;
+}
+export const teamInfo = (name = "") => REG[normName(name)];
+export const rankOf = (sport, name) => RANKS[LEAGUE[sport]]?.[normName(name)] || null;
+export const hasRankings = (sport) => Object.keys(RANKS[LEAGUE[sport]] || {}).length > 0;
+
 export function getTeam(name = "") {
+  const info = REG[normName(name)];
+  if (info) {
+    const fb = TEAM_DATA[name];
+    return { abbr: info.abbr || fb?.abbr || "?", color: info.color || fb?.color || PALETTE[hash(name) % PALETTE.length], alt: fb?.alt || "#FFFFFF", logo: info.logo };
+  }
   if (TEAM_DATA[name]) return TEAM_DATA[name];
   // College / unknown: school name initials, e.g. "Ohio State Buckeyes" → "OSU"-ish
   const words = name.replace(/[^A-Za-z&' ]/g, "").split(" ").filter(Boolean);
