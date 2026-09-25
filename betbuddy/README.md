@@ -9,6 +9,7 @@ Peer-to-peer sports wagers for a private crew of friends and family. There's no 
 - **BuddyBucks** wallet (1 = $1): Venmo deposits and cash-outs confirmed by the admin ("The Bank")
 - **Push notifications** to the lock screen for every challenge, result, and payout
 - **Trash-talk chat** on every bet, an activity feed, and a "Nudge by text" button
+- **Admin dashboard**: players, daily actives, bets and $ volume per day, most-bet games, leaderboard
 - Installable to the home screen (PWA)
 
 Stack: React + Vite, Supabase (Postgres, Auth, Realtime), and Netlify (hosting + scheduled functions), with Twilio for texts.

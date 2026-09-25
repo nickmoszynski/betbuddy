@@ -83,15 +83,16 @@ with sync_playwright() as p:
     expect(mo.get_by_text("$25 vs. Dad")).to_be_visible()
     assert balance("Mo") == 225
 
-    # Uncle: funded by admin adjustment, posts a Field bet on Cowboys +4.5
+    # Uncle: funded by admin adjustment, challenges Mo 1-on-1 (The Field is switched off)
     sql(f"insert into ledger (user_id, amount, kind, memo) select id, 50, 'adjustment', 'test' from profiles where name='Uncle Rich'")
     uncle.reload(); tab(uncle, "Games")
     uncle.locator("button", has_text="Cowboys").first.click()
-    uncle.get_by_text("The Field", exact=True).click()
+    assert uncle.get_by_text("The Field", exact=True).count() == 0, "The Field must be hidden"
+    uncle.locator("button", has_text="Mo").first.click()
     uncle.get_by_role("button", name="Cowboys +4.5 Underdog").click()
     uncle.get_by_role("button", name="$25").click()
-    uncle.get_by_role("button", name="🎲 Post to The Field — $25").click()
-    mo.reload(); tab(mo, "Inbox"); shot(mo, "08_mo_field_offer")
+    uncle.get_by_role("button", name="🎯 Challenge Mo — $25").click()
+    mo.reload(); tab(mo, "Inbox"); shot(mo, "08_mo_inbox_uncle")
 
     # Trash talk
     dad.reload(); tab(dad, "Home")

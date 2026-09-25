@@ -28,7 +28,7 @@ The Odds API (spreads + scores) · Twilio Verify (login codes)
 ## 1. Supabase (database + login)
 
 1. Go to [supabase.com](https://supabase.com) → **New project**. Pick the US East region and save the database password somewhere.
-2. Open **SQL Editor** → **New query**, paste the whole of `supabase/migrations/001_betbuddy.sql`, and click **Run**. You should see "Success. No rows returned." Then do the same with `supabase/migrations/002_push.sql` (push notifications).
+2. Open **SQL Editor** → **New query**, paste the whole of `supabase/migrations/001_betbuddy.sql`, and click **Run**. You should see "Success. No rows returned." Then do the same with `supabase/migrations/002_push.sql` (push notifications) and `supabase/migrations/003_stats.sql` (admin dashboard).
 3. Open **Project Settings → API** and copy three values:
    - Project URL → `VITE_SUPABASE_URL` and `SUPABASE_URL`
    - `anon` `public` key → `VITE_SUPABASE_ANON_KEY`

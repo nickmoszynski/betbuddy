@@ -66,7 +66,7 @@ export function TeamLogo({ teamName = "", size = 52 }) {
 
 export function Toasts({ toasts }) {
   return (
-    <div style={{ position: "fixed", top: 10, left: "50%", transform: "translateX(-50%)", zIndex: 9999, display: "flex", flexDirection: "column", gap: 6, width: "calc(100% - 28px)", maxWidth: 450, pointerEvents: "none" }}>
+    <div style={{ position: "fixed", top: "calc(env(safe-area-inset-top) + 10px)", left: "50%", transform: "translateX(-50%)", zIndex: 9999, display: "flex", flexDirection: "column", gap: 6, width: "calc(100% - 28px)", maxWidth: 450, pointerEvents: "none" }}>
       {toasts.map((t) => {
         const n = NOTIF[t.type] || NOTIF.BET_RECEIVED;
         return (

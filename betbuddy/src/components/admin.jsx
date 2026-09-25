@@ -47,8 +47,8 @@ export function AdminScreen({ onClose, toast, onChanged }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, background: "#0A0B0F", zIndex: 900, overflowY: "auto" }}>
-      <div style={{ maxWidth: 480, margin: "0 auto", padding: "16px 16px 60px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "0 16px calc(env(safe-area-inset-bottom) + 60px)" }}>
+        <div style={{ position: "sticky", top: 0, zIndex: 5, background: "rgba(10,11,15,.96)", backdropFilter: "blur(12px)", margin: "0 -16px", padding: "calc(env(safe-area-inset-top) + 12px) 16px 12px", borderBottom: "1px solid rgba(255,255,255,.06)", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 24, fontWeight: 900, fontFamily: F }}>🏦 The Bank</div>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,.62)", fontFamily: F }}>Admin controls</div>
@@ -63,6 +63,7 @@ export function AdminScreen({ onClose, toast, onChanged }) {
             <div style={{ fontSize: 12, color: "rgba(255,255,255,.5)", fontFamily: F, marginTop: 4, lineHeight: 1.6 }}>
               ${sum.available} in balances · ${sum.in_bets} riding on bets · ${sum.owed_cashouts} cash-outs owed<br />
               ${sum.deposited} deposited all-time · ${sum.paid_out} paid out · {sum.users} members
+              {sum.adjusted ? <><br />Includes ${sum.adjusted > 0 ? "+" : "−"}${Math.abs(sum.adjusted)} of manual ± adjustments (not in your Venmo)</> : null}
             </div>
           </div>
         )}

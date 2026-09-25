@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { F, GOLD_BTN, Avatar, Sheet, SheetHeader, Label, inputStyle, BigButton } from "./ui.jsx";
 import { InviteModal, inviteLink } from "./bets.jsx";
-import { fmtPhone } from "../lib/util.js";
+import { fmtPhone, FIELD_ENABLED } from "../lib/util.js";
 
 export const COLORS = ["#D4A843", "#3B82F6", "#A855F7", "#F25F5C", "#10B981", "#F97316", "#06B6D4", "#EC4899"];
 
@@ -90,8 +90,9 @@ export function HowItWorks({ onClose }) {
     ["🔒", "Locked lines", "The spread is locked when you send the challenge, even if the line moves later."],
     ["⏱", "Kickoff deadline", "Challenges nobody accepted by game time are cancelled and refunded automatically."],
     ["⚡", "Auto-settle", "When the game goes final, the app grades the bet and pays the winner — usually within minutes."],
-    ["🎲", "The Field", "Post a bet to your whole crew. First person to take the other side locks it in."],
-  ];
+    FIELD_ENABLED && ["🎲", "The Field", "Post a bet to your whole crew. First person to take the other side locks it in."],
+    ["🤝", "Always 1-on-1", "Every bet is you against one named buddy who has to accept it. Nobody else — and no house — is ever on the other side."],
+  ].filter(Boolean);
   return (
     <Sheet onClose={onClose} z={600}>
       <SheetHeader title="How BetBuddy works" onClose={onClose} />

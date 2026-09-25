@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, configured, rpc, flushTexts } from "./lib/supabase.js";
-import { mapGame, mapWager, mapProfile, resizePhoto, SPORT_COLOR, shortName } from "./lib/util.js";
+import { mapGame, mapWager, mapProfile, resizePhoto, SPORT_COLOR, shortName, FIELD_ENABLED } from "./lib/util.js";
 import { F, GOLD_BTN, Avatar, Toasts, ActivityDrawer, Empty, SectionLabel, PushCard } from "./components/ui.jsx";
 import { pushState, enablePush, refreshPushSubscription } from "./lib/push.js";
 import { BetSlip, InboxCard, ChatDrawer, ActiveBetCard, CompletedBetRow, ShowcaseCard, DashBar } from "./components/bets.jsx";
@@ -8,6 +8,7 @@ import { WalletSheet, AddFundsSheet, CashOutSheet } from "./components/wallet.js
 import { CrewSheet, ProfileSheet, HowItWorks } from "./components/crew.jsx";
 import { Login, Onboarding, Wordmark } from "./components/auth.jsx";
 import { AdminScreen } from "./components/admin.jsx";
+import { StatsScreen } from "./components/stats.jsx";
 
 const safeLS = {
   get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
@@ -165,6 +166,16 @@ function Main({ profile, reloadProfile }) {
     return () => { supabase.removeChannel(ch); clearInterval(iv); document.removeEventListener("visibilitychange", onVis); };
   }, [me, refresh, soon, toast]);
 
+  // Count app opens for the admin dashboard (on load, and when returning after 30+ min)
+  useEffect(() => {
+    let last = 0;
+    const ping = () => { if (Date.now() - last > 30 * 60_000) { last = Date.now(); rpc("touch").catch(() => {}); } };
+    ping();
+    const onVis = () => document.visibilityState === "visible" && ping();
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
   useEffect(() => {
     pushState().then(setPush).catch(() => setPush("unsupported"));
     refreshPushSubscription();
@@ -189,7 +200,7 @@ function Main({ profile, reloadProfile }) {
   const wagers = useMemo(() => rawWagers.map((w) => mapWager(w, gamesById)), [rawWagers, gamesById]);
   const mine = (w) => w.from === me || w.to === me;
   const incoming = wagers.filter((w) => w.status === "pending" && w.to === me);
-  const fieldOffers = wagers.filter((w) => w.status === "pending" && w.toField && w.from !== me && new Date(w.game.date) > new Date());
+  const fieldOffers = !FIELD_ENABLED ? [] : wagers.filter((w) => w.status === "pending" && w.toField && w.from !== me && new Date(w.game.date) > new Date());
   const sent = wagers.filter((w) => w.status === "pending" && w.from === me);
   const activeBets = wagers.filter((w) => w.status === "locked" && mine(w)).sort((a, b) => new Date(a.game.date) - new Date(b.game.date));
   const history = wagers.filter((w) => ["settled", "void"].includes(w.status) && mine(w)).sort((a, b) => new Date(b.settledAt) - new Date(a.settledAt)).slice(0, 25);
@@ -279,6 +290,7 @@ function Main({ profile, reloadProfile }) {
       {sheet === "crew" && <CrewSheet me={me} contacts={allContacts} friendIds={friendIds} onClose={() => setSheet(null)} onAddByPhone={addByPhone} toast={toast} />}
       {sheet === "profile" && <ProfileSheet profile={profile} onClose={() => setSheet(null)} onSave={saveProfile} onPhoto={uploadPhoto} />}
       {sheet === "how" && <HowItWorks onClose={() => setSheet(null)} />}
+      {sheet === "stats" && <StatsScreen onClose={() => setSheet(null)} toast={toast} />}
       {sheet === "admin" && <AdminScreen onClose={() => { setSheet(null); refresh(); }} toast={toast} onChanged={refresh} />}
       {chatBet && <ChatDrawer bet={chatBet} me={me} contacts={allContacts} messages={chatMsgs.filter((m) => m.wager_id === chatBet.id)} onClose={() => { safeLS.set(`bb_seen_${chatBet.id}`, String(Date.now())); setChatBet(null); setChatMsgs([]); chatRef.current = null; }} onSend={sendMsg} />}
       {betSlipGame && <BetSlip game={betSlipGame} me={me} contacts={allContacts} friendIds={friendIds} available={wallet.available} onSend={sendWager} onClose={() => setBetSlipGame(null)} onDeposit={() => { setBetSlipGame(null); setSheet("deposit"); }} />}
@@ -390,6 +402,7 @@ function Main({ profile, reloadProfile }) {
             </div>
           </div>
           {[
+            profile.is_admin && { icon: "📊", label: "Dashboard (Admin)", sub: "Players, activity, $ volume, top games", action: () => setSheet("stats") },
             profile.is_admin && { icon: "🏦", label: "The Bank (Admin)", sub: adminPending ? `${adminPending} waiting on you` : "Deposits, cash-outs, members", badge: adminPending, action: () => setSheet("admin") },
             { icon: "💰", label: "Add Funds", sub: "Venmo in, BuddyBucks 1:1", action: () => setSheet("deposit") },
             { icon: "💸", label: "Cash Out", sub: "Paid to your Venmo in 2–4 business days", action: () => setSheet("cashout") },

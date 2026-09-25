@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { F, GOLD_BTN, GREEN_BTN, Avatar, TeamLogo, Sheet, CloseBtn, Label, inputStyle, AmountPicker, BigButton } from "./ui.jsx";
-import { SPORT_COLOR, shortName, sideLabel, teamLine, teamForSide, other, fmtPhone, coverState } from "../lib/util.js";
+import { FIELD_ENABLED, SPORT_COLOR, shortName, sideLabel, teamLine, teamForSide, other, fmtPhone, coverState } from "../lib/util.js";
 import { getTeam } from "../lib/teams.js";
 
 export const inviteLink = (me) => `${location.origin}/?invite=${me}`;
@@ -16,7 +16,7 @@ function ContactPicker({ contacts, friendIds, selected, onSelect, onInvite, fiel
     <div>
       <Label>SEND CHALLENGE TO</Label>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-        {friendIds.length > 0 && (
+        {FIELD_ENABLED && friendIds.length > 0 && (
           <button onClick={onSelectField} style={pickBtn}>
             <div style={{ width: 48, height: 48, borderRadius: 14, background: fieldSelected ? "rgba(168,85,247,.15)" : "rgba(168,85,247,.06)", border: fieldSelected ? "2px solid #A855F7" : "2px solid rgba(168,85,247,.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>🎲</div>
             <span style={{ fontSize: 10, fontWeight: fieldSelected ? 800 : 500, color: fieldSelected ? "#A855F7" : "rgba(255,255,255,.45)", fontFamily: F }}>The Field</span>
@@ -311,7 +311,7 @@ export function InboxCard({ w, me, contacts, onAccept, onDeny, onCounter, onCanc
       )}
       {!received && (
         <div style={{ display: "flex", gap: 7 }}>
-          {!isField && <button onClick={run(() => onSendToField(w))} style={{ ...actBtn, flex: 1, background: "linear-gradient(135deg,rgba(74,222,128,.18),rgba(34,197,94,.08))", border: "2px solid rgba(74,222,128,.5)", color: "#4ADE80", fontSize: 12 }}>🎲 Open to Field</button>}
+          {FIELD_ENABLED && !isField && <button onClick={run(() => onSendToField(w))} style={{ ...actBtn, flex: 1, background: "linear-gradient(135deg,rgba(74,222,128,.18),rgba(34,197,94,.08))", border: "2px solid rgba(74,222,128,.5)", color: "#4ADE80", fontSize: 12 }}>🎲 Open to Field</button>}
           <button onClick={run(() => onCancel(w))} style={{ ...actBtn, flex: 1, background: "rgba(239,68,68,.08)", border: "2px solid rgba(239,68,68,.4)", color: "#F25F5C", fontSize: 12 }}>↩️ Cancel & Refund</button>
         </div>
       )}

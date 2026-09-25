@@ -1,5 +1,7 @@
 // Formatting helpers + mapping database rows into the shapes the UI uses
 export const SPORT_COLOR = { NFL: "#3DD68C", NCAAF: "#22D3EE", NBA: "#E8762B", NCAAB: "#F25F5C", MLB: "#4F9CF9", NHL: "#A78BFA" };
+// "The Field" (open bets any buddy can take) is switched off: every bet is 1-on-1 with a named buddy.
+export const FIELD_ENABLED = false;
 export const BANK_VENMO = (import.meta.env.VITE_BANK_VENMO || "").replace(/^@/, "");
 
 export const shortName = (n = "") => n.split(" ").pop();
