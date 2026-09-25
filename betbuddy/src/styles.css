@@ -1,0 +1,15 @@
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: #0A0B0F; color: #F0EDE8; font-family: 'DM Sans', system-ui, sans-serif; overscroll-behavior-y: none; }
+button { transition: opacity .15s, transform .1s; font-family: inherit; }
+button:active:not(:disabled) { opacity: .8; transform: scale(.97); }
+input::placeholder { color: rgba(255,255,255,.22); }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+input:focus { border-color: rgba(232,168,56,.55) !important; }
+code { background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 4px; }
+::-webkit-scrollbar { width: 2px; height: 0; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,.07); border-radius: 2px; }
+.avatar-overlay:hover { opacity: 1 !important; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-12px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes livePulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(1.5); } }
