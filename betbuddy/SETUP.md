@@ -28,7 +28,7 @@ The Odds API (spreads + scores) · Twilio Verify (login codes)
 ## 1. Supabase (database + login)
 
 1. Go to [supabase.com](https://supabase.com) → **New project**. Pick the US East region and save the database password somewhere.
-2. Open **SQL Editor** → **New query**, paste the whole of `supabase/migrations/001_betbuddy.sql`, and click **Run**. You should see "Success. No rows returned." Then do the same with `supabase/migrations/002_push.sql` (push notifications) `supabase/migrations/003_stats.sql` (admin dashboard), and `supabase/migrations/004_teams_events.sql` (team logos, AP rankings, golf/F1 matchups).
+2. Open **SQL Editor** → **New query**, paste the whole of `supabase/migrations/001_betbuddy.sql`, and click **Run**. You should see "Success. No rows returned." Then do the same with `supabase/migrations/002_push.sql` (push notifications) `supabase/migrations/003_stats.sql` (admin dashboard), `supabase/migrations/004_teams_events.sql` (team logos, AP rankings, golf/F1 matchups), and `supabase/migrations/005_teams_seed.sql` (the built-in list of every NFL, NBA and Division I team with logos).
 3. Open **Project Settings → API** and copy three values:
    - Project URL → `VITE_SUPABASE_URL` and `SUPABASE_URL`
    - `anon` `public` key → `VITE_SUPABASE_ANON_KEY`
@@ -75,7 +75,7 @@ Bet alerts are **not** sent by text, because carriers disallow gambling content 
 
 ## What's on the board
 
-- **NFL and NBA** with point spreads from The Odds API. **College football and basketball** only show games with an **AP Top 25** team, and schools appear by name (like "#3 Ohio State"). Team logos, names and rankings come from ESPN and refresh twice a day.
+- **NFL and NBA** with point spreads from The Odds API. **College football and basketball** only show games with an **AP Top 25** team, and schools appear by name (like "#3 Ohio State"). Team names and logos are built in (migration 005). ESPN blocks Netlify's servers, so the app doesn't depend on it. The AP Top 25 refreshes twice a day from ESPN when it answers, and otherwise from the NCAA's published poll.
 - **MLB and NHL are off**, because their 1.5-run and 1.5-goal lines aren't even-money bets. To change the sports, set `SPORTS` in Netlify (default `nfl,ncaaf,nba,ncaab`).
 - **Golf and F1 head-to-head matchups** come from Kalshi's public markets (no key needed). For example, "Scheffler vs McIlroy: lower Round 3 score." Only matchups Kalshi prices between 40% and 60% are listed, so every bet is close to a coin flip. Betting closes at tee time or race start, and Kalshi's official result settles the bet automatically. A tie is a push. PGA round matchups are listed every tournament week; F1 matchups appear only when Kalshi lists them. Optional settings: `H2H_SERIES` (which Kalshi series to pull) and `H2H_MAX_EDGE` (default `0.1`, meaning 40–60%).
 

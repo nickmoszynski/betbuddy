@@ -1,0 +1,64 @@
+# league|full name|nickname|abbr|color|alt color   (logo: {league}/500-dark/{abbr}.png)
+nfl|Arizona Cardinals|Cardinals|ARI|a40227|ffffff
+nfl|Atlanta Falcons|Falcons|ATL|a71930|000000
+nfl|Baltimore Ravens|Ravens|BAL|29126f|000000
+nfl|Buffalo Bills|Bills|BUF|00338d|d50a0a
+nfl|Carolina Panthers|Panthers|CAR|0085ca|000000
+nfl|Chicago Bears|Bears|CHI|0b1c3a|e64100
+nfl|Cincinnati Bengals|Bengals|CIN|fb4f14|000000
+nfl|Cleveland Browns|Browns|CLE|472a08|ff3c00
+nfl|Dallas Cowboys|Cowboys|DAL|002a5c|b0b7bc
+nfl|Denver Broncos|Broncos|DEN|0a2343|fc4c02
+nfl|Detroit Lions|Lions|DET|0076b6|bbbbbb
+nfl|Green Bay Packers|Packers|GB|204e32|ffb612
+nfl|Houston Texans|Texans|HOU|021018|eb0028
+nfl|Indianapolis Colts|Colts|IND|003b75|ffffff
+nfl|Jacksonville Jaguars|Jaguars|JAX|007487|d7a22a
+nfl|Kansas City Chiefs|Chiefs|KC|e31837|ffb612
+nfl|Las Vegas Raiders|Raiders|LV|000000|a5acaf
+nfl|Los Angeles Chargers|Chargers|LAC|0080c6|ffc20e
+nfl|Los Angeles Rams|Rams|LAR|003594|ffd100
+nfl|Miami Dolphins|Dolphins|MIA|008e97|fc4c02
+nfl|Minnesota Vikings|Vikings|MIN|4f2683|ffc62f
+nfl|New England Patriots|Patriots|NE|002a5c|c60c30
+nfl|New Orleans Saints|Saints|NO|d3bc8d|000000
+nfl|New York Giants|Giants|NYG|003c7f|c9243f
+nfl|New York Jets|Jets|NYJ|115740|ffffff
+nfl|Philadelphia Eagles|Eagles|PHI|06424d|000000
+nfl|Pittsburgh Steelers|Steelers|PIT|000000|ffb612
+nfl|San Francisco 49ers|49ers|SF|aa0000|b3995d
+nfl|Seattle Seahawks|Seahawks|SEA|002a5c|69be28
+nfl|Tampa Bay Buccaneers|Buccaneers|TB|bd1c36|3e3a35
+nfl|Tennessee Titans|Titans|TEN|4495d2|001532
+nfl|Washington Commanders|Commanders|WSH|5a1414|ffb612
+nba|Atlanta Hawks|Hawks|ATL|c8102e|fdb927
+nba|Boston Celtics|Celtics|BOS|008348|ffffff
+nba|Brooklyn Nets|Nets|BKN|000000|ffffff
+nba|Charlotte Hornets|Hornets|CHA|008ca8|1d1060
+nba|Chicago Bulls|Bulls|CHI|ce1141|000000
+nba|Cleveland Cavaliers|Cavaliers|CLE|860038|bc945c
+nba|Dallas Mavericks|Mavericks|DAL|0064b1|bbc4ca
+nba|Denver Nuggets|Nuggets|DEN|0e2240|fec524
+nba|Detroit Pistons|Pistons|DET|1d428a|c8102e
+nba|Golden State Warriors|Warriors|GS|fdb927|1d428a
+nba|Houston Rockets|Rockets|HOU|ce0e2d|000000
+nba|Indiana Pacers|Pacers|IND|0c2340|ffd520
+nba|LA Clippers|Clippers|LAC|12173f|c8102e
+nba|Los Angeles Clippers|Clippers|LAC|12173f|c8102e
+nba|Los Angeles Lakers|Lakers|LAL|552583|fdb927
+nba|Memphis Grizzlies|Grizzlies|MEM|5d76a9|12173f
+nba|Miami Heat|Heat|MIA|98002e|000000
+nba|Milwaukee Bucks|Bucks|MIL|00471b|eee1c6
+nba|Minnesota Timberwolves|Timberwolves|MIN|266092|79bc43
+nba|New Orleans Pelicans|Pelicans|NO|0a2240|b4975a
+nba|New York Knicks|Knicks|NY|1d428a|f58426
+nba|Oklahoma City Thunder|Thunder|OKC|007ac1|ef3b24
+nba|Orlando Magic|Magic|ORL|0150b5|9ca0a3
+nba|Philadelphia 76ers|76ers|PHI|1d428a|e01234
+nba|Phoenix Suns|Suns|PHX|29127a|e56020
+nba|Portland Trail Blazers|Trail Blazers|POR|e03a3e|000000
+nba|Sacramento Kings|Kings|SAC|5a2d81|6a7a82
+nba|San Antonio Spurs|Spurs|SA|000000|c4ced4
+nba|Toronto Raptors|Raptors|TOR|d91244|000000
+nba|Utah Jazz|Jazz|UTAH|4e008e|79a3dc
+nba|Washington Wizards|Wizards|WSH|e31837|002b5c

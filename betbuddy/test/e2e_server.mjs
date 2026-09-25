@@ -66,12 +66,17 @@ globalThis.fetch = async (url, opts) => {
     if (m[2] === "odds") return Response.json(FIXTURES[m[1]] || [], { headers: { "x-requests-remaining": "19990" } });
     return Response.json(scores.filter((s) => s.sport_key === m[1]), { headers: { "x-requests-remaining": "19989" } });
   }
-  if (u.includes("site.api.espn.com")) {
+  if (/api\.espn\.com/.test(u)) {
+    if (globalThis.ESPN_BLOCKED) return new Response("Forbidden", { status: 403 });
     if (u.includes("football/nfl/teams")) return Response.json({ sports: [{ leagues: [{ teams: NFL_T }] }] });
     if (u.includes("college-football/teams")) return Response.json({ sports: [{ leagues: [{ teams: CF_T }] }] });
     if (u.includes("college-football/rankings")) return Response.json(CF_RANK);
     if (u.includes("/rankings")) return Response.json({ rankings: [] });
     return Response.json({ sports: [{ leagues: [{ teams: [] }] }] });
+  }
+  if (u.includes("ncaa-api.henrygd.me")) {
+    if (u.includes("football/fbs")) return Response.json({ data: [{ RANK: "1", SCHOOL: "Michigan (40)" }, { RANK: "2", SCHOOL: "Ohio St." }] });
+    return Response.json({ data: [] });
   }
   if (u.includes("kalshi.com")) {
     const q = new URL(u).searchParams;
@@ -111,6 +116,16 @@ if (mode === "seed") {
   assert(t.find((x) => x.short_name === "Ohio State").rank === 3, "rank stored");
   assert(Number(data.find((g) => g.id === "nfl1").spread) === -6.5 && data.find((g) => g.id === "nfl1").fav_team === "Buffalo Bills", "Bills -6.5");
   console.log("SEED OK");
+} else if (mode === "espn403") {
+  // Netlify's servers get 403 from ESPN: keep saved teams, take the AP poll from the NCAA mirror
+  globalThis.ESPN_BLOCKED = true;
+  const before = (await sb.from("teams").select("name_key").eq("league", "nfl")).data.length;
+  await syncTeams(sb, log);
+  const { data: nfl } = await sb.from("teams").select("name_key").eq("league", "nfl");
+  assert(nfl.length === before && before > 0, "saved NFL teams kept");
+  const { data: t } = await sb.from("teams").select("short_name,rank").eq("league", "college-football").not("rank", "is", null);
+  assert(t.length === 2 && t.find((x) => x.short_name === "Michigan").rank === 1 && t.find((x) => x.short_name === "Ohio State").rank === 2, "NCAA poll fallback " + JSON.stringify(t));
+  console.log("ESPN 403 OK");
 } else if (mode === "h2hsettle") {
   // Round is under way, then Kalshi finalizes: Rory wins
   await sb.from("games").update({ commence_time: new Date(Date.now() - 3600_000).toISOString(), status: "live" }).eq("id", "KXPGAH2H-TEST26R3SSCHRMCI");

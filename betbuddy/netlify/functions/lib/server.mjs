@@ -161,7 +161,7 @@ export async function syncStatus(sb) {
   for (const label of Object.keys(LEAGUES)) {
     teams[label] = {
       teams: await count(sb.from("teams").select("name_key", { count: "exact", head: true }).eq("league", leagueOf(label))),
-      ranked: await count(sb.from("teams").select("name_key", { count: "exact", head: true }).eq("league", leagueOf(label)).not("rank", "is", null)),
+      ranked: new Set(((await sb.from("teams").select("rank").eq("league", leagueOf(label)).not("rank", "is", null)).data || []).map((r) => r.rank)).size,
     };
   }
   const upcoming = await count(sb.from("games").select("id", { count: "exact", head: true }).gt("commence_time", new Date().toISOString()));
@@ -169,38 +169,107 @@ export async function syncStatus(sb) {
   return { runs: Object.fromEntries((runs || []).map((r) => [r.key, r.value])), teams, upcoming, matchups, oddsKey: !!env("ODDS_API_KEY") };
 }
 
+// ESPN blocks some cloud servers (Netlify gets 403), so the teams table is also
+// seeded by migration 005. A failed fetch here just keeps the saved rows.
+const ESPN_HOSTS = ["https://site.api.espn.com", "https://site.web.api.espn.com"];
+async function espn(path) {
+  let last;
+  for (const h of ESPN_HOSTS) {
+    try { return await getJSON(`${h}/apis/site/v2/sports/${path}`); } catch (e) { last = e; }
+  }
+  throw last;
+}
+
 export async function syncTeams(sb, log = () => {}) {
   const now = new Date().toISOString();
   for (const [label, L] of Object.entries(LEAGUES)) {
+    const league = leagueOf(label);
     try {
-      const league = leagueOf(label);
-      const j = await getJSON(`${ESPN}/${L.path}/teams?limit=1000${L.groups ? `&groups=${L.groups}` : ""}`);
+      const j = await espn(`${L.path}/teams?limit=1000${L.groups ? `&groups=${L.groups}` : ""}`);
       const teams = (j.sports?.[0]?.leagues?.[0]?.teams || []).map((x) => x.team).filter(Boolean);
-      const ranks = new Map();
-      if (L.college) {
-        const rk = await getJSON(`${ESPN}/${L.path}/rankings`).catch(() => null);
-        const ap = rk?.rankings?.find((x) => /^AP/i.test(x.name || "")) || rk?.rankings?.[0];
-        for (const k of ap?.ranks || []) {
-          if (!k.team) continue;
-          ranks.set(norm(`${k.team.location} ${k.team.name}`), k.current);
-          // A ranked team outside the default list still gets a row
-          if (!teams.some((t) => norm(t.displayName) === norm(`${k.team.location} ${k.team.name}`)))
-            teams.push({ displayName: `${k.team.location} ${k.team.name}`, location: k.team.location, name: k.team.name, abbreviation: k.team.abbreviation, color: k.team.color, logos: k.team.logos });
-        }
-      }
       const rows = teams.map((t) => ({
         league, name_key: norm(t.displayName), full_name: t.displayName,
         short_name: L.college ? (t.location || t.displayName) : (t.name || t.shortDisplayName || t.displayName),
         abbr: t.abbreviation || null, color: t.color ? `#${t.color}` : null, alt_color: t.alternateColor ? `#${t.alternateColor}` : null,
-        logo: (t.logos || []).find((l) => (l.rel || []).includes("dark"))?.href || t.logos?.[0]?.href || null, rank: ranks.get(norm(t.displayName)) ?? null, updated_at: now,
+        logo: (t.logos || []).find((l) => (l.rel || []).includes("dark"))?.href || t.logos?.[0]?.href || null, updated_at: now,
       }));
       const uniq = [...new Map(rows.map((r) => [r.name_key, r])).values()];
       for (let i = 0; i < uniq.length; i += 500) {
         const { error } = await sb.from("teams").upsert(uniq.slice(i, i + 500), { onConflict: "league,name_key" });
         if (error) throw error;
       }
-      log(`${label}: ${uniq.length} teams${L.college ? `, ${ranks.size} ranked` : ""}`);
-    } catch (e) { log(`teams ${label} failed: ${e.message}`); }
+      log(`${label}: ${uniq.length} teams from ESPN`);
+    } catch (e) {
+      const { count } = await sb.from("teams").select("name_key", { count: "exact", head: true }).eq("league", league);
+      log(`${label}: ESPN unavailable (${String(e.message).replace(/^.*→ /, "")}), using ${count ?? 0} saved teams`);
+    }
+  }
+  await syncRankings(sb, log);
+}
+
+// ── AP Top 25: ESPN first, then the NCAA's own poll page (ncaa-api mirror) ──
+const NCAA_POLL = {
+  NCAAF: "https://ncaa-api.henrygd.me/rankings/football/fbs/associated-press",
+  NCAAB: "https://ncaa-api.henrygd.me/rankings/basketball-men/d1/associated-press",
+};
+// NCAA poll spellings → ESPN school names
+const RANK_ALIAS = {
+  miamifl: "Miami", miamiflorida: "Miami", southerncal: "USC", southerncalifornia: "USC", mississippi: "Ole Miss",
+  centralflorida: "UCF", brighamyoung: "BYU", louisianastate: "LSU", texaschristian: "TCU", southernmethodist: "SMU",
+  northcarolinastate: "NC State", ncstate: "NC State", pitt: "Pittsburgh", appalachianstate: "App State",
+  connecticut: "UConn", massachusetts: "Massachusetts", umass: "Massachusetts", saintmarysca: "Saint Mary's",
+  stmarysca: "Saint Mary's", stjohnsny: "St. John's", hawaii: "Hawai'i", sanjosestate: "San José State",
+  southernmississippi: "Southern Miss", louisianamonroe: "UL Monroe", fiu: "Florida International", fau: "Florida Atlantic",
+  floridainternational: "Florida International", floridaatlantic: "Florida Atlantic", virginiacommonwealth: "VCU",
+  nevadalasvegas: "UNLV", texaselpaso: "UTEP", texassanantonio: "UTSA", alabamabirmingham: "UAB",
+  loyolail: "Loyola Chicago", loyolachicago: "Loyola Chicago", miamioh: "Miami (OH)",
+};
+export const cleanSchool = (s = "") => s.replace(/\s*\(\d+\)\s*$/, "").replace(/\bSt\.$/, "State").replace(/\bSt\.(?=\s*\()/, "State").trim();
+
+async function fetchRanks(label, L) {
+  const out = [];
+  try {
+    const rk = await espn(`${L.path}/rankings`);
+    const ap = rk?.rankings?.find((x) => /^AP/i.test(x.name || "")) || rk?.rankings?.[0];
+    for (const k of ap?.ranks || []) if (k.team && k.current) out.push([k.team.location, k.current]);
+    if (out.length) return { src: "ESPN", out };
+  } catch {}
+  out.length = 0;
+  const j = await getJSON(NCAA_POLL[label]);
+  const key = (row) => Object.keys(row).find((k) => /^SCHOOL/i.test(k));
+  for (const row of j.data || []) {
+    const r = parseInt(row.RANK, 10);
+    if (r > 0) out.push([cleanSchool(row[key(row)]), r]);
+  }
+  return { src: "NCAA", out };
+}
+
+export async function syncRankings(sb, log = () => {}) {
+  for (const [label, L] of Object.entries(LEAGUES)) {
+    if (!L.college) continue;
+    const league = leagueOf(label);
+    try {
+      const { src, out } = await fetchRanks(label, L);
+      const { data: teams } = await sb.from("teams").select("name_key,short_name").eq("league", league);
+      const bySchool = new Map();
+      for (const t of teams || []) {
+        const k = norm(t.short_name);
+        bySchool.set(k, [...(bySchool.get(k) || []), t.name_key]);
+      }
+      const hits = [], missed = [];
+      for (const [school, rank] of out) {
+        const n = norm(school);
+        const keys = bySchool.get(n) || bySchool.get(norm(RANK_ALIAS[n] || "")) || bySchool.get(norm(school.replace(/State$/, "St.")));
+        if (keys) hits.push([keys, rank]); else missed.push(school);
+      }
+      if (hits.length < Math.min(20, out.length) || !hits.length) {
+        log(`${label} rankings: only matched ${hits.length}/${out.length} (${missed.join(", ")}); kept previous`);
+        continue;
+      }
+      await sb.from("teams").update({ rank: null }).eq("league", league).not("rank", "is", null);
+      for (const [keys, rank] of hits) await sb.from("teams").update({ rank }).eq("league", league).in("name_key", keys);
+      log(`${label}: AP Top 25 from ${src}, ${hits.length} ranked${missed.length ? ` (unmatched: ${missed.join(", ")})` : ""}`);
+    } catch (e) { log(`${label} rankings failed: ${e.message}`); }
   }
 }
 
