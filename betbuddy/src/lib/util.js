@@ -13,7 +13,10 @@ export const isH2H = (g) => g?.kind === "h2h";
 // "Dolphins @ Bills", "#3 Ohio State @ Michigan", "Scheffler vs McIlroy"
 export const matchupText = (g) => (g?.kind === "h2h" ? `${shortName(g.away)} vs ${shortName(g.home)}` : `${rankedName(g, g?.away)} @ ${rankedName(g, g?.home)}`);
 // "#3 Ohio State" when the team is ranked in that sport's AP poll
-export const rankedName = (g, team) => { const r = g && rankOf(g.sport, team); return `${r ? `#${r} ` : ""}${shortName(team)}`; };
+// College teams we can't look up yet show their full name ("North Dakota State Bison"), never just the mascot
+const COLLEGE = ["NCAAF", "NCAAB"];
+export const teamLabel = (g, team = "") => (isH2H(g) || !COLLEGE.includes(g?.sport) || teamInfo(team) ? shortName(team) : team);
+export const rankedName = (g, team) => { const r = g && rankOf(g.sport, team); return `${r ? `#${r} ` : ""}${teamLabel(g, team)}`; };
 export const getDog = (g) => (g.favTeam === g.home ? g.away : g.home);
 export const other = (side) => (side === "fav" ? "dog" : "fav");
 export const fmtNum = (n) => (Number.isInteger(Number(n)) ? String(Number(n)) : Number(n).toFixed(1));
@@ -22,8 +25,8 @@ export const fmtNum = (n) => (Number.isInteger(Number(n)) ? String(Number(n)) : 
 export function sideLabel(g, side) {
   if (isH2H(g)) return shortName(side === "fav" ? g.favTeam : getDog(g));
   const sp = Number(g.spread);
-  if (side === "fav") return `${shortName(g.favTeam)} ${sp === 0 ? "PK" : fmtNum(sp)}`;
-  return `${shortName(getDog(g))} ${sp === 0 ? "PK" : "+" + fmtNum(Math.abs(sp))}`;
+  if (side === "fav") return `${teamLabel(g, g.favTeam)} ${sp === 0 ? "PK" : fmtNum(sp)}`;
+  return `${teamLabel(g, getDog(g))} ${sp === 0 ? "PK" : "+" + fmtNum(Math.abs(sp))}`;
 }
 // Spread text shown next to a team: "-2.5" / "+2.5" / "PK"
 export function teamLine(g, team) {
@@ -58,10 +61,12 @@ export function mapProfile(p) {
 }
 
 // Prime time = night games in football
+// Prime time = NFL night games (TNF / SNF / MNF), kickoff 7:30pm ET or later
 function importance(g) {
-  const hourET = Number(new Date(g.commence_time).toLocaleString("en-US", { timeZone: "America/New_York", hour: "numeric", hour12: false }));
-  if ((g.sport === "NFL" || g.sport === "NCAAF") && hourET >= 19) return 3;
-  return 1;
+  if (g.sport !== "NFL") return 1;
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(new Date(g.commence_time));
+  const h = Number(parts.find((p) => p.type === "hour")?.value), m = Number(parts.find((p) => p.type === "minute")?.value);
+  return h * 60 + m >= 19 * 60 + 30 ? 3 : 1;
 }
 
 export function mapGame(g, counts = {}) {

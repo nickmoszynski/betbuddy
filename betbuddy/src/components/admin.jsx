@@ -13,6 +13,7 @@ export function AdminScreen({ onClose, toast, onChanged }) {
   const [adjust, setAdjust] = useState(null);
   const [scoreFor, setScoreFor] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [report, setReport] = useState(null); // { status, log }
 
   const load = useCallback(async () => {
     const [s, u, d, w, l] = await Promise.all([
@@ -33,12 +34,19 @@ export function AdminScreen({ onClose, toast, onChanged }) {
     try { await fn(); if (okMsg) toast("DEPOSIT", okMsg); flushTexts(); await load(); onChanged(); }
     catch (e) { toast("ERROR", e.message); }
   };
+  const authHeader = async () => { const { data: { session } } = await supabase.auth.getSession(); return { Authorization: `Bearer ${session?.access_token}` }; };
+  useEffect(() => {
+    (async () => {
+      const st = await fetch("/api/sync-now", { headers: await authHeader() }).then((x) => x.json()).catch(() => null);
+      if (st && !st.error) setReport((r) => r || { status: st, log: null });
+    })();
+  }, []);
   const syncNow = async () => {
     setSyncing(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    const r = await fetch("/api/sync-now", { method: "POST", headers: { Authorization: `Bearer ${session?.access_token}` } }).then((x) => x.json()).catch((e) => ({ error: e.message }));
+    const r = await fetch("/api/sync-now", { method: "POST", headers: await authHeader() }).then((x) => x.json()).catch((e) => ({ error: e.message }));
     setSyncing(false);
-    if (r.error) toast("ERROR", "Sync failed", r.error); else toast("AUTO_SETTLE", "Games refreshed", (r.log || []).slice(-2).join(" · "));
+    if (r.error) toast("ERROR", "Sync failed", r.error); else toast("AUTO_SETTLE", "Games refreshed", "See the sync report below the button");
+    setReport({ status: r.status || report?.status, log: r.log || [r.error].filter(Boolean) });
     await load(); onChanged();
   };
 
@@ -67,7 +75,9 @@ export function AdminScreen({ onClose, toast, onChanged }) {
             </div>
           </div>
         )}
-        <button onClick={syncNow} disabled={syncing} style={{ ...btn("rgba(255,255,255,.05)", "#F0EDE8", "1px solid rgba(255,255,255,.1)"), width: "100%", marginBottom: 20 }}>{syncing ? "Refreshing…" : "⟳ Refresh games & scores now"}</button>
+        <button onClick={syncNow} disabled={syncing} style={{ ...btn("rgba(255,255,255,.05)", "#F0EDE8", "1px solid rgba(255,255,255,.1)"), width: "100%", marginBottom: 10 }}>{syncing ? "Refreshing… (up to 30 sec)" : "⟳ Refresh games & scores now"}</button>
+        {report?.status && <SyncReport report={report} card={card} />}
+        <div style={{ height: 10 }} />
 
         <Label>DEPOSITS TO CONFIRM ({deps.length})</Label>
         {deps.length === 0 && <div style={{ ...card, color: "rgba(255,255,255,.57)", fontFamily: F, fontSize: 13 }}>Nothing waiting.</div>}
@@ -162,6 +172,36 @@ function ScoreForm({ game, onSubmit, onCancel }) {
       {shortName(game.home)} <input inputMode="numeric" value={h} onChange={(e) => setH(e.target.value.replace(/\D/g, ""))} style={box} />
       <button disabled={a === "" || h === ""} onClick={() => onSubmit(Number(h), Number(a))} style={{ padding: "10px 14px", background: GREEN_BTN, border: "none", borderRadius: 10, fontWeight: 800, cursor: "pointer" }}>Settle</button>
       <button onClick={onCancel} style={{ background: "none", border: "none", color: "rgba(255,255,255,.62)", cursor: "pointer" }}>Cancel</button>
+    </div>
+  );
+}
+
+// Shows whether the background job is alive and what data is loaded
+function SyncReport({ report, card }) {
+  const { status: st, log } = report;
+  const ago = (ts) => { if (!ts) return "never"; const m = Math.round((Date.now() - new Date(ts)) / 60000); return m < 1 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} hr ago` : `${Math.round(m / 1440)} days ago`; };
+  const tickOk = st.runs?.tick && Date.now() - new Date(st.runs.tick) < 5 * 60000;
+  const row = (k, v, ok = true) => (
+    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 12, padding: "3px 0", fontFamily: F }}>
+      <span style={{ color: "rgba(255,255,255,.65)" }}>{k}</span><span style={{ fontWeight: 700, color: ok ? "#F0EDE8" : "#F25F5C", textAlign: "right" }}>{v}</span>
+    </div>
+  );
+  const t = st.teams || {};
+  return (
+    <div style={{ ...card, fontFamily: F }}>
+      <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "1.2px", color: "rgba(255,255,255,.55)", marginBottom: 6 }}>SYNC REPORT</div>
+      {row("Background job (every minute)", tickOk ? `✓ running · ${ago(st.runs.tick)}` : `✕ not running · last ${ago(st.runs?.tick)}`, !!tickOk)}
+      {row("Game lines (every 4 hr)", st.oddsKey ? ago(st.runs?.odds) : "✕ ODDS_API_KEY missing", !!st.oddsKey)}
+      {row("Scores (every 10 min)", ago(st.runs?.scores))}
+      {row("Teams & logos (every 12 hr)", `${ago(st.runs?.teams)} · NFL ${t.NFL?.teams ?? 0} · NCAAF ${t.NCAAF?.teams ?? 0}`, (t.NFL?.teams ?? 0) > 0)}
+      {row("AP Top 25", `NCAAF ${t.NCAAF?.ranked ?? 0} ranked · NCAAB ${t.NCAAB?.ranked ?? 0}`, (t.NCAAF?.ranked ?? 0) > 0)}
+      {row("Golf/F1 matchups (every 30 min)", `${ago(st.runs?.h2h)} · ${st.matchups ?? 0} open`)}
+      {row("Upcoming games loaded", String(st.upcoming ?? 0))}
+      {log?.length > 0 && (
+        <div style={{ marginTop: 8, padding: "8px 10px", background: "rgba(255,255,255,.04)", borderRadius: 8, fontSize: 11, lineHeight: 1.6, color: "rgba(255,255,255,.75)", maxHeight: 180, overflowY: "auto" }}>
+          {log.map((l, i) => <div key={i} style={{ color: /fail|error/i.test(l) ? "#F25F5C" : undefined }}>{l}</div>)}
+        </div>
+      )}
     </div>
   );
 }

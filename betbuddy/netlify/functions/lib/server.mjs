@@ -148,9 +148,25 @@ const LEAGUES = {
 };
 const leagueOf = (label) => LEAGUES[label]?.path.split("/")[1];
 async function getJSON(url) {
-  const res = await fetch(url, { headers: { "user-agent": "BetBuddy/1.0" } });
+  const res = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 (compatible; BetBuddy/1.0)", accept: "application/json" } });
   if (!res.ok) throw new Error(`${url} → ${res.status}`);
   return res.json();
+}
+
+// What the admin "sync report" shows: when each background job last ran + what's loaded
+export async function syncStatus(sb) {
+  const { data: runs } = await sb.from("sync_state").select("key,value");
+  const count = async (q) => (await q).count ?? null;
+  const teams = {};
+  for (const label of Object.keys(LEAGUES)) {
+    teams[label] = {
+      teams: await count(sb.from("teams").select("name_key", { count: "exact", head: true }).eq("league", leagueOf(label))),
+      ranked: await count(sb.from("teams").select("name_key", { count: "exact", head: true }).eq("league", leagueOf(label)).not("rank", "is", null)),
+    };
+  }
+  const upcoming = await count(sb.from("games").select("id", { count: "exact", head: true }).gt("commence_time", new Date().toISOString()));
+  const matchups = await count(sb.from("games").select("id", { count: "exact", head: true }).eq("kind", "h2h").gt("commence_time", new Date().toISOString()));
+  return { runs: Object.fromEntries((runs || []).map((r) => [r.key, r.value])), teams, upcoming, matchups, oddsKey: !!env("ODDS_API_KEY") };
 }
 
 export async function syncTeams(sb, log = () => {}) {
@@ -362,6 +378,7 @@ export async function flushSms(sb, log = () => {}) {
 export async function tick(log = console.log) {
   const sb = db();
   const step = async (name, fn) => { try { await fn(); } catch (e) { log(`${name} error: ${e.message}`); } };
+  await step("heartbeat", () => mark(sb, "tick"));
 
   await step("push", () => flushPush(sb, log));
   await step("sms", () => flushSms(sb, log));
