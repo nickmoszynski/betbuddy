@@ -303,7 +303,7 @@ function Main({ profile, reloadProfile }) {
         </div>
       </div>
 
-      {!loaded && <div style={{ textAlign: "center", padding: 60, color: "rgba(255,255,255,.3)", fontFamily: F }}>Loading…</div>}
+      {!loaded && <div style={{ textAlign: "center", padding: 60, color: "rgba(255,255,255,.52)", fontFamily: F }}>Loading…</div>}
 
       {/* ════ HOME ════ */}
       {loaded && tab === "home" && (
@@ -359,7 +359,7 @@ function Main({ profile, reloadProfile }) {
         <div style={{ padding: "12px 14px 0" }}>
           <div style={{ marginBottom: 12 }}>
             <div style={{ fontSize: 26, fontWeight: 900, letterSpacing: "-0.8px" }}>Games</div>
-            <div style={{ fontSize: 13, color: "rgba(240,237,232,.4)", marginTop: 2 }}>Tap a game to challenge your crew</div>
+            <div style={{ fontSize: 13, color: "rgba(240,237,232,.62)", marginTop: 2 }}>Tap a game to challenge your crew</div>
           </div>
           <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, marginBottom: 14 }}>
             {sportsAvail.map((s) => {
@@ -367,7 +367,7 @@ function Main({ profile, reloadProfile }) {
               return <button key={s} onClick={() => setSport(s)} style={{ flexShrink: 0, padding: "7px 16px", borderRadius: 20, fontWeight: 700, fontSize: 11, fontFamily: F, cursor: "pointer", border: `1.5px solid ${on ? c : "rgba(255,255,255,.08)"}`, background: on ? `${c}16` : "rgba(255,255,255,.03)", color: on ? c : "rgba(255,255,255,.45)" }}>{s}</button>;
             })}
           </div>
-          {board.length === 0 && <div style={{ textAlign: "center", padding: "40px 20px", color: "rgba(255,255,255,.3)", fontFamily: F, fontSize: 14 }}>No games posted{sportFilter !== "ALL" ? ` for ${sportFilter}` : ""} yet.<br /><span style={{ fontSize: 12 }}>Lines refresh a few times a day.</span></div>}
+          {board.length === 0 && <div style={{ textAlign: "center", padding: "40px 20px", color: "rgba(255,255,255,.52)", fontFamily: F, fontSize: 14 }}>No games posted{sportFilter !== "ALL" ? ` for ${sportFilter}` : ""} yet.<br /><span style={{ fontSize: 12 }}>Lines refresh a few times a day.</span></div>}
           {primetime.length > 0 && <><SectionLabel color="rgba(212,168,67,.75)">🔥 PRIMETIME</SectionLabel>{primetime.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
           {rest.length > 0 && <><SectionLabel style={{ marginTop: primetime.length ? 14 : 0 }}>UPCOMING</SectionLabel>{rest.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
           {live.length > 0 && <><SectionLabel color="rgba(61,214,140,.7)" style={{ marginTop: 14 }}>IN PROGRESS</SectionLabel>{live.map((g) => <ShowcaseCard key={g.id} game={g} onTap={setBetSlipGame} />)}</>}
@@ -381,10 +381,10 @@ function Main({ profile, reloadProfile }) {
             <Avatar contact={meContact} size={60} showRing onUpload={uploadPhoto} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 800, fontSize: 18 }}>{profile.name}</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,.35)" }}>{profile.venmo ? `@${profile.venmo}` : "Tap photo to change"}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,.57)" }}>{profile.venmo ? `@${profile.venmo}` : "Tap photo to change"}</div>
               <div style={{ display: "flex", gap: 14, marginTop: 6 }}>
                 {[["Available", wallet.available, "#D4A843"], ["Locked", wallet.locked, "#F97316"], ["Pending", wallet.pending, "#A855F7"]].map(([l, v, c]) => (
-                  <div key={l}><div style={{ fontSize: 15, fontWeight: 900, color: c, lineHeight: 1 }}>${v}</div><div style={{ fontSize: 9, color: "rgba(255,255,255,.35)" }}>{l}</div></div>
+                  <div key={l}><div style={{ fontSize: 15, fontWeight: 900, color: c, lineHeight: 1 }}>${v}</div><div style={{ fontSize: 9, color: "rgba(255,255,255,.57)" }}>{l}</div></div>
                 ))}
               </div>
             </div>
@@ -407,10 +407,10 @@ function Main({ profile, reloadProfile }) {
                 <div style={{ fontWeight: 700, fontSize: 14, fontFamily: F }}>{item.label}</div>
                 {item.sub && <div style={{ fontSize: 11, color: item.badge ? "#60A5FA" : "rgba(255,255,255,.35)", fontFamily: F }}>{item.sub}</div>}
               </div>
-              {item.badge ? <span style={{ background: "#3B82F6", color: "#fff", borderRadius: 99, fontSize: 11, fontWeight: 900, padding: "2px 8px" }}>{item.badge}</span> : <span style={{ fontSize: 16, color: "rgba(255,255,255,.2)" }}>›</span>}
+              {item.badge ? <span style={{ background: "#3B82F6", color: "#fff", borderRadius: 99, fontSize: 11, fontWeight: 900, padding: "2px 8px" }}>{item.badge}</span> : <span style={{ fontSize: 16, color: "rgba(255,255,255,.42)" }}>›</span>}
             </button>
           ))}
-          <div style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,.2)", padding: "14px 0", fontFamily: F }}>BetBuddy · private friends & family app · 21+</div>
+          <div style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,.42)", padding: "14px 0", fontFamily: F }}>BetBuddy · private friends & family app · 21+</div>
         </div>
       )}
 

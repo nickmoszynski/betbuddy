@@ -2,10 +2,10 @@
 html, body { margin: 0; background: #0A0B0F; color: #F0EDE8; font-family: 'DM Sans', system-ui, sans-serif; overscroll-behavior-y: none; }
 button { transition: opacity .15s, transform .1s; font-family: inherit; }
 button:active:not(:disabled) { opacity: .8; transform: scale(.97); }
-input::placeholder { color: rgba(255,255,255,.22); }
+input::placeholder { color: rgba(240,237,232,.5); }
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
-input:focus { border-color: rgba(232,168,56,.55) !important; }
+input:focus { border-color: #E8A838 !important; box-shadow: 0 0 0 3px rgba(232,168,56,.18); }
 code { background: rgba(255,255,255,.08); padding: 1px 5px; border-radius: 4px; }
 ::-webkit-scrollbar { width: 2px; height: 0; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.07); border-radius: 2px; }

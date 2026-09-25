@@ -67,7 +67,7 @@ export function InviteModal({ onClose, me, senderName, game }) {
         <div style={{ textAlign: "center", padding: "24px 0 12px" }}>
           <div style={{ fontSize: 48, marginBottom: 12 }}>📲</div>
           <div style={{ fontWeight: 800, fontSize: 20, fontFamily: F, marginBottom: 6 }}>Invite ready!</div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,.45)", fontFamily: F }}>Once they join from your link, they're in your crew automatically.</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,.67)", fontFamily: F }}>Once they join from your link, they're in your crew automatically.</div>
         </div>
       ) : (
         <>
@@ -79,7 +79,7 @@ export function InviteModal({ onClose, me, senderName, game }) {
             <CloseBtn onClick={onClose} />
           </div>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Their name (optional)" style={{ ...inputStyle, marginBottom: 10 }} />
-          <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(fmtPhone(e.target.value))} placeholder="Cell phone number" style={{ ...inputStyle, fontWeight: 700, marginBottom: 14, borderColor: digits.length >= 10 ? "rgba(6,182,212,.4)" : "rgba(255,255,255,.08)" }} />
+          <input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(fmtPhone(e.target.value))} placeholder="Cell phone number" style={{ ...inputStyle, fontWeight: 700, marginBottom: 14, borderColor: digits.length >= 10 ? "rgba(6,182,212,.6)" : "rgba(232,168,56,.35)" }} />
           <div style={{ background: "#13151C", border: "1px solid rgba(255,255,255,.06)", borderRadius: 14, padding: "12px 14px", marginBottom: 12 }}>
             <Label style={{ marginBottom: 6 }}>MESSAGE PREVIEW</Label>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,.6)", fontFamily: F, lineHeight: 1.5, fontStyle: "italic" }}>"{msg}"</div>
@@ -125,8 +125,8 @@ export function BetSlip({ game, me, contacts, friendIds, available, onSend, onCl
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
           <div>
             <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "1.5px", color: SPORT_COLOR[game.sport] || "#fff", background: `${SPORT_COLOR[game.sport] || "#fff"}14`, padding: "3px 8px", borderRadius: 6, fontFamily: F }}>{game.sport}</span>
-            <div style={{ fontWeight: 800, fontSize: 18, fontFamily: F, lineHeight: 1.2, marginTop: 6 }}>{shortName(game.away)} <span style={{ color: "rgba(255,255,255,.25)", fontWeight: 400, fontSize: 14 }}>at</span> {shortName(game.home)}</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: F, marginTop: 2 }}>{new Date(game.date).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</div>
+            <div style={{ fontWeight: 800, fontSize: 18, fontFamily: F, lineHeight: 1.2, marginTop: 6 }}>{shortName(game.away)} <span style={{ color: "rgba(255,255,255,.47)", fontWeight: 400, fontSize: 14 }}>at</span> {shortName(game.home)}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.57)", fontFamily: F, marginTop: 2 }}>{new Date(game.date).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}</div>
           </div>
           <CloseBtn onClick={onClose} />
         </div>
@@ -138,7 +138,7 @@ export function BetSlip({ game, me, contacts, friendIds, available, onSend, onCl
         ) : (
           <>
             <div style={{ marginBottom: fieldSel ? 10 : 18 }}>
-              {friendIds.length === 0 && <div style={{ fontSize: 12, color: "rgba(255,255,255,.45)", fontFamily: F, marginBottom: 10 }}>Your crew is empty — invite someone to bet with.</div>}
+              {friendIds.length === 0 && <div style={{ fontSize: 12, color: "rgba(255,255,255,.67)", fontFamily: F, marginBottom: 10 }}>Your crew is empty — invite someone to bet with.</div>}
               <ContactPicker contacts={contacts} friendIds={friendIds} selected={oppId} onSelect={(id) => { setOppId(id); setField(false); }} onInvite={() => setInvite(true)} fieldSelected={fieldSel} onSelectField={() => { setField(true); setOppId(null); }} />
             </div>
 
@@ -147,7 +147,7 @@ export function BetSlip({ game, me, contacts, friendIds, available, onSend, onCl
                 <span style={{ fontSize: 22 }}>🎲</span>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: 13, color: "#A855F7", fontFamily: F }}>The Field — open to your whole crew</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,.45)", fontFamily: F, marginTop: 1 }}>First buddy to take the other side locks it in. Refunded if nobody bites before kickoff.</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,.67)", fontFamily: F, marginTop: 1 }}>First buddy to take the other side locks it in. Refunded if nobody bites before kickoff.</div>
                 </div>
               </div>
             )}
@@ -167,12 +167,12 @@ export function BetSlip({ game, me, contacts, friendIds, available, onSend, onCl
             {side && (oppId || fieldSel) && (
               <div style={{ background: "#13151C", borderRadius: 14, padding: "11px 14px", marginBottom: 14, display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 9, color: "rgba(255,255,255,.3)", fontWeight: 700, letterSpacing: "1px", fontFamily: F, marginBottom: 3 }}>YOU</div>
+                  <div style={{ fontSize: 9, color: "rgba(255,255,255,.52)", fontWeight: 700, letterSpacing: "1px", fontFamily: F, marginBottom: 3 }}>YOU</div>
                   <div style={{ fontWeight: 800, fontSize: 14, color: "#3DD68C", fontFamily: F }}>{yourPick}</div>
                 </div>
-                <div style={{ fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,.15)" }}>VS</div>
+                <div style={{ fontSize: 10, fontWeight: 900, color: "rgba(255,255,255,.37)" }}>VS</div>
                 <div style={{ flex: 1, textAlign: "right" }}>
-                  <div style={{ fontSize: 9, color: "rgba(255,255,255,.3)", fontWeight: 700, letterSpacing: "1px", fontFamily: F, marginBottom: 3 }}>{fieldSel ? "THE FIELD" : contacts[oppId]?.name?.toUpperCase()}</div>
+                  <div style={{ fontSize: 9, color: "rgba(255,255,255,.52)", fontWeight: 700, letterSpacing: "1px", fontFamily: F, marginBottom: 3 }}>{fieldSel ? "THE FIELD" : contacts[oppId]?.name?.toUpperCase()}</div>
                   <div style={{ fontWeight: 800, fontSize: 14, color: "#F25F5C", fontFamily: F }}>{theirPick}</div>
                 </div>
               </div>
@@ -181,10 +181,10 @@ export function BetSlip({ game, me, contacts, friendIds, available, onSend, onCl
             <div style={{ marginBottom: 14 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <Label style={{ marginBottom: 0 }}>WAGER</Label>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,.3)", fontFamily: F }}>Avail: <span style={{ color: "#D4A843", fontWeight: 700 }}>${available}</span></div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.52)", fontFamily: F }}>Avail: <span style={{ color: "#D4A843", fontWeight: 700 }}>${available}</span></div>
               </div>
               <AmountPicker amt={amt} setAmt={setAmt} max={available} invalidMsg={<>Not enough BuddyBucks. <u style={{ cursor: "pointer" }} onClick={onDeposit}>Add funds</u></>} />
-              {wager > 0 && wager <= available && <div style={{ fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: F, marginTop: 6 }}>Win and you collect <b style={{ color: "#3DD68C" }}>${wager * 2}</b> (your ${wager} back + ${wager} from them). Push = refund.</div>}
+              {wager > 0 && wager <= available && <div style={{ fontSize: 11, color: "rgba(255,255,255,.57)", fontFamily: F, marginTop: 6 }}>Win and you collect <b style={{ color: "#3DD68C" }}>${wager * 2}</b> (your ${wager} back + ${wager} from them). Push = refund.</div>}
             </div>
 
             <div style={{ marginBottom: 20 }}>
@@ -213,7 +213,7 @@ function MatchupRow({ game, leftAvatar, rightAvatar }) {
         <div style={{ position: "absolute", [right ? "right" : "left"]: 22, top: 4, borderRadius: "50%", border: "2px solid #13151C" }}>{avatar}</div>
       </div>
       <div style={{ minWidth: 0, textAlign: right ? "right" : "left" }}>
-        <div style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,.4)", fontFamily: F, lineHeight: 1, marginBottom: 2 }}>{shortName(team)}</div>
+        <div style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,.62)", fontFamily: F, lineHeight: 1, marginBottom: 2 }}>{shortName(team)}</div>
         <div style={{ fontSize: 13, fontWeight: 900, color: team === game.favTeam ? sc : "rgba(255,255,255,.5)", fontFamily: F, lineHeight: 1 }}>{teamLine(game, team)}</div>
       </div>
     </div>
@@ -221,7 +221,7 @@ function MatchupRow({ game, leftAvatar, rightAvatar }) {
   return (
     <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
       {pill(game.away, awayT, leftAvatar, false)}
-      <span style={{ fontSize: 8, fontWeight: 900, color: "rgba(255,255,255,.15)", fontFamily: F, flexShrink: 0 }}>VS</span>
+      <span style={{ fontSize: 8, fontWeight: 900, color: "rgba(255,255,255,.37)", fontFamily: F, flexShrink: 0 }}>VS</span>
       {pill(game.home, homeT, rightAvatar, true)}
     </div>
   );
@@ -259,7 +259,7 @@ export function InboxCard({ w, me, contacts, onAccept, onDeny, onCounter, onCanc
           <div style={{ fontSize: 13, fontWeight: 800, color: "#F0EDE8", fontFamily: F, lineHeight: 1.2, marginBottom: 3 }}>{title}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
             <span style={{ fontSize: 8, fontWeight: 800, color: sc, letterSpacing: "0.8px", fontFamily: F, background: `${sc}18`, padding: "1px 5px", borderRadius: 4 }}>{w.game?.sport}</span>
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,.3)", fontFamily: F }}>{shortName(w.game?.away)} @ {shortName(w.game?.home)}</span>
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,.52)", fontFamily: F }}>{shortName(w.game?.away)} @ {shortName(w.game?.home)}</span>
             {timeLabel && <span style={{ fontSize: 9, fontWeight: 700, color: urgent ? "#F25F5C" : "rgba(255,255,255,.3)", fontFamily: F }}>· {timeLabel}</span>}
           </div>
         </div>
@@ -291,14 +291,14 @@ export function InboxCard({ w, me, contacts, onAccept, onDeny, onCounter, onCanc
       )}
       {received && !isField && showCounter && (
         <div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", fontFamily: F, marginBottom: 7 }}>Same line, your amount. Their ${w.amount} is refunded and a new challenge goes back to {from.name.split(" ")[0]}.</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,.62)", fontFamily: F, marginBottom: 7 }}>Same line, your amount. Their ${w.amount} is refunded and a new challenge goes back to {from.name.split(" ")[0]}.</div>
           <div style={{ display: "flex", gap: 7 }}>
             <div style={{ position: "relative", flex: 1 }}>
-              <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,.25)", fontWeight: 800 }}>$</span>
+              <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,.47)", fontWeight: 800 }}>$</span>
               <input type="number" inputMode="numeric" value={counterAmt} onChange={(e) => setCounterAmt(e.target.value.replace(/\D/g, ""))} placeholder={String(w.amount)} style={{ ...inputStyle, background: "#13151C", padding: "11px 11px 11px 24px", borderColor: "rgba(168,85,247,.3)", fontSize: 15 }} />
             </div>
             <button onClick={run(async () => { if (counterAmt && (await onCounter(w, Number(counterAmt)))) setShowCounter(false); })} style={{ ...actBtn, padding: "11px 16px", background: "rgba(168,85,247,.15)", border: "1.5px solid #A855F7", color: "#A855F7" }}>Send</button>
-            <button onClick={() => setShowCounter(false)} style={{ ...actBtn, padding: "11px 13px", background: "#13151C", border: "1.5px solid rgba(255,255,255,.07)", color: "rgba(255,255,255,.35)" }}>✕</button>
+            <button onClick={() => setShowCounter(false)} style={{ ...actBtn, padding: "11px 13px", background: "#13151C", border: "1.5px solid rgba(255,255,255,.07)", color: "rgba(255,255,255,.57)" }}>✕</button>
           </div>
         </div>
       )}
@@ -336,11 +336,11 @@ export function ChatDrawer({ bet, me, contacts, messages, onClose, onSend }) {
           <Avatar contact={opp} size={36} />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 800, fontSize: 15, fontFamily: F }}>{opp?.name}</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: F }}>{shortName(bet.game.away)} at {shortName(bet.game.home)} · <span style={{ color: "#D4A843" }}>${bet.amount}</span></div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.57)", fontFamily: F }}>{shortName(bet.game.away)} at {shortName(bet.game.home)} · <span style={{ color: "#D4A843" }}>${bet.amount}</span></div>
           </div>
         </div>
         <div style={{ padding: "4px 10px", background: "rgba(74,222,128,.08)", border: "1px solid rgba(74,222,128,.2)", borderRadius: 8 }}>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,.3)", fontFamily: F, marginBottom: 1 }}>YOUR PICK</div>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,.52)", fontFamily: F, marginBottom: 1 }}>YOUR PICK</div>
           <div style={{ fontSize: 11, fontWeight: 800, color: "#3DD68C", fontFamily: F }}>{bet.from === me ? bet.sideLabel : bet.otherSideLabel}</div>
         </div>
         <CloseBtn onClick={onClose} />
@@ -349,8 +349,8 @@ export function ChatDrawer({ bet, me, contacts, messages, onClose, onSend }) {
         {messages.length === 0 && (
           <div style={{ textAlign: "center", padding: "40px 20px" }}>
             <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.35 }}>💬</div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,.3)", fontFamily: F }}>No messages yet</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,.2)", marginTop: 4, fontFamily: F }}>Start the trash talk 🗑️</div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,.52)", fontFamily: F }}>No messages yet</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,.42)", marginTop: 4, fontFamily: F }}>Start the trash talk 🗑️</div>
           </div>
         )}
         {messages.map((m) => {
@@ -362,7 +362,7 @@ export function ChatDrawer({ bet, me, contacts, messages, onClose, onSend }) {
                 <div style={{ padding: "10px 13px", background: mine ? GOLD_BTN : "rgba(255,255,255,.07)", borderRadius: mine ? "16px 16px 4px 16px" : "16px 16px 16px 4px", border: mine ? "none" : "1px solid rgba(255,255,255,.06)" }}>
                   <div style={{ fontSize: 14, color: mine ? "#0A0B0F" : "#fff", fontFamily: F, fontWeight: mine ? 600 : 400, lineHeight: 1.4, wordBreak: "break-word" }}>{m.body}</div>
                 </div>
-                <div style={{ fontSize: 9, color: "rgba(255,255,255,.25)", fontFamily: F, paddingBottom: 2 }}>{new Date(m.created_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</div>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,.47)", fontFamily: F, paddingBottom: 2 }}>{new Date(m.created_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</div>
               </div>
             </div>
           );
@@ -415,7 +415,7 @@ export function ActiveBetCard({ bet, me, contacts, onOpenChat, unreadCount = 0 }
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "1.2px", color: sc, background: `${sc}18`, padding: "2px 7px", borderRadius: 5, fontFamily: F }}>{g.sport}</span>
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,.3)", fontFamily: F }}>{shortName(g.away)} @ {shortName(g.home)}</span>
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,.52)", fontFamily: F }}>{shortName(g.away)} @ {shortName(g.home)}</span>
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
@@ -427,23 +427,23 @@ export function ActiveBetCard({ bet, me, contacts, onOpenChat, unreadCount = 0 }
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 10, fontWeight: 800, color: "#3DD68C", fontFamily: F, marginBottom: 1 }}>You</div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#F0EDE8", fontFamily: F, lineHeight: 1.1 }}>{shortName(myTeam)}</div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.45)", fontFamily: F }}>{myPick}</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.67)", fontFamily: F }}>{myPick}</div>
           </div>
         </div>
         <div style={{ flexShrink: 0, padding: "0 8px" }}>
           {hasScore && (isLive || isFinal)
             ? <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 <span style={{ fontSize: 20, fontWeight: 900, color: winning ? "#3DD68C" : "#F0EDE8", fontFamily: F, lineHeight: 1 }}>{myScore}</span>
-                <span style={{ fontSize: 10, color: "rgba(240,237,232,.2)", fontWeight: 900 }}>–</span>
+                <span style={{ fontSize: 10, color: "rgba(240,237,232,.42)", fontWeight: 900 }}>–</span>
                 <span style={{ fontSize: 20, fontWeight: 900, color: "#F0EDE8", fontFamily: F, lineHeight: 1 }}>{oppScore}</span>
               </div>
-            : <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(240,237,232,.15)", letterSpacing: "2px", fontFamily: F }}>VS</span>}
+            : <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(240,237,232,.37)", letterSpacing: "2px", fontFamily: F }}>VS</span>}
         </div>
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end", minWidth: 0 }}>
           <div style={{ minWidth: 0, textAlign: "right" }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,.35)", fontFamily: F, marginBottom: 1 }}>{opp?.name?.split(" ")[0] || "?"}</div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,.57)", fontFamily: F, marginBottom: 1 }}>{opp?.name?.split(" ")[0] || "?"}</div>
             <div style={{ fontSize: 12, fontWeight: 700, color: "#F0EDE8", fontFamily: F, lineHeight: 1.1 }}>{shortName(oppTeam)}</div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(240,237,232,.35)", fontFamily: F }}>{oppPick}</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(240,237,232,.57)", fontFamily: F }}>{oppPick}</div>
           </div>
           <div style={{ position: "relative", flexShrink: 0, width: 54, height: 36 }}>
             <div style={{ position: "absolute", right: 0, top: 4, border: "2px solid #13151C", borderRadius: 10 }}><Avatar contact={opp} size={28} /></div>
@@ -457,7 +457,7 @@ export function ActiveBetCard({ bet, me, contacts, onOpenChat, unreadCount = 0 }
             <svg width="12" height="12" viewBox="0 0 24 24" fill="rgba(240,237,232,.55)"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" /></svg>
             {unreadCount > 0 && <span style={{ position: "absolute", top: -4, right: -4, background: "#F25F5C", color: "#fff", borderRadius: 99, fontSize: 8, fontWeight: 900, minWidth: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>{unreadCount}</span>}
           </span>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,.3)", fontFamily: F }}>Trash Talk</span>
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,.52)", fontFamily: F }}>Trash Talk</span>
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 4, background: `${tier.c2}18`, border: `1px solid ${tier.c2}40`, borderRadius: 20, padding: "4px 10px 4px 6px" }}>
           <div style={{ display: "flex" }}>{[0, 1].map((i) => <div key={i} style={{ width: 14, height: 14, borderRadius: "50%", background: `radial-gradient(circle at 35% 35%, ${tier.c1}, ${tier.c2})`, border: "1.5px solid rgba(0,0,0,.3)", marginLeft: i ? -4 : 0 }} />)}</div>
@@ -486,12 +486,12 @@ export function CompletedBetRow({ bet, me, contacts }) {
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
         <TeamLogo teamName={g.away} size={26} />
-        <span style={{ fontSize: 8, color: "rgba(240,237,232,.2)", fontWeight: 900 }}>@</span>
+        <span style={{ fontSize: 8, color: "rgba(240,237,232,.42)", fontWeight: 900 }}>@</span>
         <TeamLogo teamName={g.home} size={26} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: "#F0EDE8", fontFamily: F, lineHeight: 1.2 }}>{voided ? "Voided" : push ? "Push" : won ? "Won" : "Lost"} vs {opp?.name?.split(" ")[0] || "?"}</div>
-        <div style={{ fontSize: 10, color: "rgba(240,237,232,.35)", fontFamily: F, marginTop: 2 }}>
+        <div style={{ fontSize: 10, color: "rgba(240,237,232,.57)", fontFamily: F, marginTop: 2 }}>
           {myPick} · <span style={{ color: sc }}>{g.sport}</span>
           {g.homeScore != null && ` · ${shortName(g.away)} ${g.awayScore}, ${shortName(g.home)} ${g.homeScore}`}
         </div>
@@ -520,7 +520,7 @@ export function ShowcaseCard({ game, onTap }) {
     <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, flexDirection: right ? "row-reverse" : "row", minWidth: 0 }}>
       <TeamLogo teamName={team} size={36} />
       <div style={{ textAlign: right ? "right" : "left", minWidth: 0 }}>
-        <div style={{ fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,.3)", letterSpacing: "1px", fontFamily: F, marginBottom: 1 }}>{right ? "HOME" : "AWAY"}</div>
+        <div style={{ fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,.52)", letterSpacing: "1px", fontFamily: F, marginBottom: 1 }}>{right ? "HOME" : "AWAY"}</div>
         <div style={{ fontSize: 14, fontWeight: 800, color: "#F0EDE8", fontFamily: F, lineHeight: 1.05 }}>{shortName(team)}</div>
         <div style={{ fontSize: 12, fontWeight: 700, color: noLine ? "rgba(255,255,255,.25)" : team === game.favTeam ? sc : "rgba(255,255,255,.4)", fontFamily: F, marginTop: 2 }}>
           {isLive && game.homeScore != null ? (right ? game.homeScore : game.awayScore) : noLine ? "—" : teamLine(game, team)}
@@ -539,20 +539,20 @@ export function ShowcaseCard({ game, onTap }) {
               </div>
             : <>
                 <span style={{ fontSize: 9, fontWeight: 700, color: sc, letterSpacing: "1.5px", fontFamily: F, background: `${sc}14`, padding: "3px 8px", borderRadius: 7 }}>{game.sport}</span>
-                <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,.4)", letterSpacing: "1px", fontFamily: F }}>{dayLabel}</span>
-                <span style={{ fontSize: 9, color: "rgba(240,237,232,.3)", fontFamily: F }}>{timeStr}</span>
+                <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,.62)", letterSpacing: "1px", fontFamily: F }}>{dayLabel}</span>
+                <span style={{ fontSize: 9, color: "rgba(240,237,232,.52)", fontFamily: F }}>{timeStr}</span>
               </>}
           {isPrimetime && !isLive && <span style={{ fontSize: 8, fontWeight: 800, color: "#D4A843", background: "rgba(212,168,67,.15)", border: "1px solid rgba(212,168,67,.3)", padding: "2px 7px", borderRadius: 6, fontFamily: F }}>🔥 PRIMETIME</span>}
           {isHot && !isPrimetime && <span style={{ fontSize: 8, fontWeight: 800, color: "#A855F7", background: "rgba(168,85,247,.12)", padding: "2px 7px", borderRadius: 6, fontFamily: F }}>📈 HOT</span>}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          {game.wagerCount > 0 && <><span style={{ fontSize: 11, fontWeight: 700, color: "rgba(240,237,232,.4)", fontFamily: F }}>{game.wagerCount}</span><span style={{ fontSize: 8, color: "rgba(240,237,232,.25)", fontFamily: F }}>bets</span></>}
-          <span style={{ color: "rgba(240,237,232,.25)", fontSize: 16, lineHeight: 1 }}>›</span>
+          {game.wagerCount > 0 && <><span style={{ fontSize: 11, fontWeight: 700, color: "rgba(240,237,232,.62)", fontFamily: F }}>{game.wagerCount}</span><span style={{ fontSize: 8, color: "rgba(240,237,232,.47)", fontFamily: F }}>bets</span></>}
+          <span style={{ color: "rgba(240,237,232,.47)", fontSize: 16, lineHeight: 1 }}>›</span>
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         {side(game.away, false)}
-        <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,.15)", fontFamily: F }}>@</span>
+        <span style={{ fontSize: 9, fontWeight: 800, color: "rgba(255,255,255,.37)", fontFamily: F }}>@</span>
         {side(game.home, true)}
       </div>
     </button>
@@ -576,7 +576,7 @@ export function DashBar({ activeBets, pendingOut, pendingIn, onTabClick }) {
         <div key={s.label} onClick={s.onClick || undefined} style={{ flex: 1, background: "#13151C", borderRadius: 12, padding: "9px 11px", border: `1px solid ${s.value > 0 ? s.color + "30" : "rgba(255,255,255,.05)"}`, display: "flex", flexDirection: "column", gap: 2, cursor: s.onClick ? "pointer" : "default", position: "relative", overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             {s.dot && s.value > 0 && <div style={{ width: 4, height: 4, borderRadius: "50%", background: s.color, animation: "livePulse 1.4s infinite" }} />}
-            <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: "1.5px", color: "rgba(255,255,255,.3)", fontFamily: F }}>{s.label}</span>
+            <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: "1.5px", color: "rgba(255,255,255,.52)", fontFamily: F }}>{s.label}</span>
             {s.badge && <span style={{ marginLeft: "auto", fontSize: 8, fontWeight: 900, color: s.color, background: `${s.color}18`, borderRadius: 99, padding: "1px 5px", fontFamily: F }}>{s.badge} in</span>}
           </div>
           <div style={{ fontSize: 24, fontWeight: 900, color: s.value > 0 ? s.color : "rgba(255,255,255,.15)", fontFamily: F, lineHeight: 1 }}>{s.value}</div>

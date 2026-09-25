@@ -51,7 +51,7 @@ export function AdminScreen({ onClose, toast, onChanged }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 24, fontWeight: 900, fontFamily: F }}>🏦 The Bank</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,.4)", fontFamily: F }}>Admin controls</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,.62)", fontFamily: F }}>Admin controls</div>
           </div>
           <CloseBtn onClick={onClose} />
         </div>
@@ -69,14 +69,14 @@ export function AdminScreen({ onClose, toast, onChanged }) {
         <button onClick={syncNow} disabled={syncing} style={{ ...btn("rgba(255,255,255,.05)", "#F0EDE8", "1px solid rgba(255,255,255,.1)"), width: "100%", marginBottom: 20 }}>{syncing ? "Refreshing…" : "⟳ Refresh games & scores now"}</button>
 
         <Label>DEPOSITS TO CONFIRM ({deps.length})</Label>
-        {deps.length === 0 && <div style={{ ...card, color: "rgba(255,255,255,.35)", fontFamily: F, fontSize: 13 }}>Nothing waiting.</div>}
+        {deps.length === 0 && <div style={{ ...card, color: "rgba(255,255,255,.57)", fontFamily: F, fontSize: 13 }}>Nothing waiting.</div>}
         {deps.map((d) => (
           <div key={d.id} style={card}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
               <Avatar contact={byId[d.user_id]} size={34} />
               <div style={{ flex: 1, fontFamily: F }}>
                 <div style={{ fontWeight: 800, fontSize: 14 }}>{byId[d.user_id]?.name} · <span style={{ color: "#3DD68C" }}>${d.amount}</span></div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,.45)" }}>Look for Venmo note <b style={{ color: "#D4A843" }}>{d.code}</b> · {timeAgo(d.created_at)}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.67)" }}>Look for Venmo note <b style={{ color: "#D4A843" }}>{d.code}</b> · {timeAgo(d.created_at)}</div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -87,14 +87,14 @@ export function AdminScreen({ onClose, toast, onChanged }) {
         ))}
 
         <Label style={{ marginTop: 18 }}>CASH-OUTS TO SEND ({wds.length})</Label>
-        {wds.length === 0 && <div style={{ ...card, color: "rgba(255,255,255,.35)", fontFamily: F, fontSize: 13 }}>Nothing owed.</div>}
+        {wds.length === 0 && <div style={{ ...card, color: "rgba(255,255,255,.57)", fontFamily: F, fontSize: 13 }}>Nothing owed.</div>}
         {wds.map((w) => (
           <div key={w.id} style={card}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
               <Avatar contact={byId[w.user_id]} size={34} />
               <div style={{ flex: 1, fontFamily: F }}>
                 <div style={{ fontWeight: 800, fontSize: 14 }}>{byId[w.user_id]?.name} · <span style={{ color: "#F97316" }}>${w.amount}</span></div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,.45)" }}>to @{w.venmo} · requested {timeAgo(w.created_at)}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.67)" }}>to @{w.venmo} · requested {timeAgo(w.created_at)}</div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -106,7 +106,7 @@ export function AdminScreen({ onClose, toast, onChanged }) {
         ))}
 
         <Label style={{ marginTop: 18 }}>BETS NEEDING ATTENTION ({stuck.length})</Label>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: F, marginBottom: 8 }}>Locked bets whose game started 5+ hours ago and hasn't auto-settled (postponed, or the score feed missed it).</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,.57)", fontFamily: F, marginBottom: 8 }}>Locked bets whose game started 5+ hours ago and hasn't auto-settled (postponed, or the score feed missed it).</div>
         {stuck.map((x) => (
           <div key={x.id} style={card}>
             <div style={{ fontFamily: F, fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
@@ -129,7 +129,7 @@ export function AdminScreen({ onClose, toast, onChanged }) {
             <Avatar contact={byId[u.id]} size={34} />
             <div style={{ flex: 1, fontFamily: F, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 14 }}>{u.name || "(no name yet)"} {u.is_admin && <span style={{ fontSize: 9, color: "#60A5FA" }}>ADMIN</span>}</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)" }}>{u.phone ? fmtPhone(u.phone) : ""}{u.venmo ? ` · @${u.venmo}` : ""}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,.62)" }}>{u.phone ? fmtPhone(u.phone) : ""}{u.venmo ? ` · @${u.venmo}` : ""}</div>
             </div>
             <div style={{ fontFamily: F, fontWeight: 900, color: "#D4A843" }}>${u.available}</div>
             <button onClick={() => setAdjust({ id: u.id, name: u.name, amt: "", memo: "" })} style={{ background: "none", border: "1px solid rgba(255,255,255,.1)", borderRadius: 8, color: "rgba(255,255,255,.5)", fontSize: 11, padding: "5px 8px", cursor: "pointer", fontFamily: F }}>±</button>
@@ -160,7 +160,7 @@ function ScoreForm({ game, onSubmit, onCancel }) {
       {shortName(game.away)} <input inputMode="numeric" value={a} onChange={(e) => setA(e.target.value.replace(/\D/g, ""))} style={box} />
       {shortName(game.home)} <input inputMode="numeric" value={h} onChange={(e) => setH(e.target.value.replace(/\D/g, ""))} style={box} />
       <button disabled={a === "" || h === ""} onClick={() => onSubmit(Number(h), Number(a))} style={{ padding: "10px 14px", background: GREEN_BTN, border: "none", borderRadius: 10, fontWeight: 800, cursor: "pointer" }}>Settle</button>
-      <button onClick={onCancel} style={{ background: "none", border: "none", color: "rgba(255,255,255,.4)", cursor: "pointer" }}>Cancel</button>
+      <button onClick={onCancel} style={{ background: "none", border: "none", color: "rgba(255,255,255,.62)", cursor: "pointer" }}>Cancel</button>
     </div>
   );
 }

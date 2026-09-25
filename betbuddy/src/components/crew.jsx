@@ -42,13 +42,13 @@ export function CrewSheet({ me, contacts, friendIds, onClose, onAddByPhone, toas
 
         <div style={{ height: 14 }} />
         {friendIds.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "24px 0", color: "rgba(255,255,255,.3)", fontFamily: F, fontSize: 13 }}>No buddies yet. Share your link — anyone who joins from it is automatically in your crew.</div>
+          <div style={{ textAlign: "center", padding: "24px 0", color: "rgba(255,255,255,.52)", fontFamily: F, fontSize: 13 }}>No buddies yet. Share your link — anyone who joins from it is automatically in your crew.</div>
         ) : friendIds.map((id) => (
           <div key={id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,.04)" }}>
             <Avatar contact={contacts[id]} size={40} />
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, fontSize: 14, fontFamily: F }}>{contacts[id].name}</div>
-              {contacts[id].phone && <div style={{ fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: F }}>{fmtPhone(contacts[id].phone)}</div>}
+              {contacts[id].phone && <div style={{ fontSize: 11, color: "rgba(255,255,255,.57)", fontFamily: F }}>{fmtPhone(contacts[id].phone)}</div>}
             </div>
           </div>
         ))}

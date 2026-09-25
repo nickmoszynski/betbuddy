@@ -13,7 +13,7 @@ export function Wordmark({ big }) {
         <div style={{ fontSize: 19 * s, fontWeight: 900, color: "#F0EDE8", letterSpacing: "-0.8px", lineHeight: 1, fontFamily: F }}>
           Bet<span style={{ background: "linear-gradient(90deg,#E8A838,#F59E0B)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Buddy</span>
         </div>
-        <div style={{ fontSize: 7.5 * s, color: "rgba(255,255,255,.3)", letterSpacing: "2.5px", textTransform: "uppercase", fontFamily: F, marginTop: 2 }}>Friendly Wagers</div>
+        <div style={{ fontSize: 7.5 * s, color: "rgba(255,255,255,.52)", letterSpacing: "2.5px", textTransform: "uppercase", fontFamily: F, marginTop: 2 }}>Friendly Wagers</div>
       </div>
     </div>
   );
@@ -72,11 +72,11 @@ export function Login({ invited }) {
         </>
       )}
       {err && <div style={{ marginTop: 14, padding: "10px 12px", background: "rgba(242,95,92,.1)", border: "1px solid rgba(242,95,92,.3)", borderRadius: 10, color: "#F25F5C", fontFamily: F, fontSize: 13 }}>{err}</div>}
-      <div style={{ marginTop: 30, fontSize: 11, color: "rgba(255,255,255,.25)", fontFamily: F, textAlign: "center", lineHeight: 1.5 }}>Private, invite-only app for friends & family. Must be 21+.</div>
+      <div style={{ marginTop: 30, fontSize: 11, color: "rgba(255,255,255,.47)", fontFamily: F, textAlign: "center", lineHeight: 1.5 }}>Private, invite-only app for friends & family. Must be 21+.</div>
     </Shell>
   );
 }
-const linkBtn = { background: "none", border: "none", color: "rgba(255,255,255,.45)", fontFamily: F, fontSize: 13, cursor: "pointer" };
+const linkBtn = { background: "none", border: "none", color: "rgba(255,255,255,.67)", fontFamily: F, fontSize: 13, cursor: "pointer" };
 
 export function Onboarding({ profile, onSave }) {
   const [name, setName] = useState("");

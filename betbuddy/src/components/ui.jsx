@@ -74,7 +74,7 @@ export function Toasts({ toasts }) {
             <span style={{ fontSize: 16, flexShrink: 0 }}>{n.icon}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: "#F0EDE8", fontFamily: F }}>{t.msg}</div>
-              {t.sub && <div style={{ fontSize: 11, color: "rgba(255,255,255,.4)", fontFamily: F }}>{t.sub}</div>}
+              {t.sub && <div style={{ fontSize: 11, color: "rgba(255,255,255,.62)", fontFamily: F }}>{t.sub}</div>}
             </div>
             {t.amt ? <div style={{ fontSize: 15, fontWeight: 800, color: n.color, flexShrink: 0, fontFamily: F }}>${t.amt}</div> : null}
           </div>
@@ -109,18 +109,18 @@ export function SheetHeader({ title, sub, onClose, subColor = "rgba(255,255,255,
 }
 
 export const CloseBtn = ({ onClick }) => (
-  <button onClick={onClick} aria-label="Close" style={{ background: "rgba(255,255,255,.06)", border: "none", borderRadius: 9, width: 32, height: 32, cursor: "pointer", color: "rgba(255,255,255,.45)", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
+  <button onClick={onClick} aria-label="Close" style={{ background: "rgba(255,255,255,.06)", border: "none", borderRadius: 9, width: 32, height: 32, cursor: "pointer", color: "rgba(255,255,255,.67)", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
 );
 
 export const Label = ({ children, style }) => (
-  <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.35)", letterSpacing: "1.2px", marginBottom: 8, fontFamily: F, ...style }}>{children}</div>
+  <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,.57)", letterSpacing: "1.2px", marginBottom: 8, fontFamily: F, ...style }}>{children}</div>
 );
 
-export const inputStyle = { width: "100%", padding: "14px", background: "#1A1D27", border: "1.5px solid rgba(255,255,255,.08)", borderRadius: 12, color: "#F0EDE8", fontSize: 16, fontWeight: 600, fontFamily: F, outline: "none" };
+export const inputStyle = { width: "100%", padding: "14px", background: "#20242F", border: "1.5px solid rgba(232,168,56,.35)", borderRadius: 12, color: "#F0EDE8", fontSize: 16, fontWeight: 600, fontFamily: F, outline: "none" };
 
 export function BigButton({ children, onClick, disabled, bg = GOLD_BTN, color = "#0A0B0F", style }) {
   return (
-    <button onClick={onClick} disabled={disabled} style={{ width: "100%", padding: "17px", background: disabled ? "rgba(255,255,255,.05)" : bg, border: "none", borderRadius: 15, cursor: disabled ? "default" : "pointer", color: disabled ? "rgba(255,255,255,.2)" : color, fontFamily: F, fontWeight: 800, fontSize: 16, boxShadow: disabled ? "none" : "0 4px 24px rgba(232,168,56,.2)", ...style }}>
+    <button onClick={onClick} disabled={disabled} style={{ width: "100%", padding: "17px", background: disabled ? "rgba(232,168,56,.14)" : bg, border: disabled ? "1.5px solid rgba(232,168,56,.3)" : "none", borderRadius: 15, cursor: disabled ? "default" : "pointer", color: disabled ? "rgba(240,200,120,.75)" : color, fontFamily: F, fontWeight: 800, fontSize: 16, boxShadow: disabled ? "none" : "0 4px 24px rgba(232,168,56,.2)", ...style }}>
       {children}
     </button>
   );
@@ -137,9 +137,9 @@ export function AmountPicker({ amt, setAmt, quick = [10, 25, 50, 100], max, inva
         ))}
       </div>
       <div style={{ position: "relative" }}>
-        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,.25)", fontWeight: 800, fontSize: 17 }}>$</span>
+        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "rgba(255,255,255,.47)", fontWeight: 800, fontSize: 17 }}>$</span>
         <input type="number" inputMode="numeric" min="1" step="1" value={amt} onChange={(e) => setAmt(e.target.value.replace(/\D/g, ""))} placeholder="Custom amount"
-          style={{ ...inputStyle, background: "#13151C", padding: "14px 14px 14px 30px", fontWeight: 700, borderColor: over ? "rgba(239,68,68,.45)" : "rgba(255,255,255,.08)" }} />
+          style={{ ...inputStyle, background: "#13151C", padding: "14px 14px 14px 30px", fontWeight: 700, borderColor: over ? "rgba(239,68,68,.6)" : "rgba(232,168,56,.35)" }} />
       </div>
       {over && <div style={{ fontSize: 12, color: "#F25F5C", fontFamily: F, marginTop: 6 }}>⚠️ {invalidMsg || `You have $${max} available.`}</div>}
     </div>
@@ -152,13 +152,13 @@ export function ActivityDrawer({ notifs, contacts, onClose, onClear }) {
       <div style={{ padding: "4px 18px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,.05)" }}>
         <div style={{ fontWeight: 800, fontSize: 17, fontFamily: F }}>Activity</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {notifs.length > 0 && <button onClick={onClear} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,.35)", fontFamily: F, fontSize: 12, fontWeight: 600 }}>Clear all</button>}
+          {notifs.length > 0 && <button onClick={onClear} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,.57)", fontFamily: F, fontSize: 12, fontWeight: 600 }}>Clear all</button>}
           <CloseBtn onClick={onClose} />
         </div>
       </div>
       <div style={{ overflowY: "auto", padding: "8px 16px 28px" }}>
         {notifs.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px 0", color: "rgba(255,255,255,.2)", fontFamily: F }}>No activity yet</div>
+          <div style={{ textAlign: "center", padding: "40px 0", color: "rgba(255,255,255,.42)", fontFamily: F }}>No activity yet</div>
         ) : notifs.map((n) => {
           const nt = NOTIF[n.type] || NOTIF.BET_RECEIVED;
           const actor = n.actor_id ? contacts[n.actor_id] : null;
@@ -170,8 +170,8 @@ export function ActivityDrawer({ notifs, contacts, onClose, onClear }) {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: "#F0EDE8", fontFamily: F, lineHeight: 1.3 }}>{n.msg}</div>
-                {n.sub && <div style={{ fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: F, marginTop: 1 }}>{n.sub}</div>}
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,.22)", fontFamily: F, marginTop: 2 }}>{timeAgo(n.created_at)}</div>
+                {n.sub && <div style={{ fontSize: 11, color: "rgba(255,255,255,.57)", fontFamily: F, marginTop: 1 }}>{n.sub}</div>}
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,.44)", fontFamily: F, marginTop: 2 }}>{timeAgo(n.created_at)}</div>
               </div>
               {!n.read && <div style={{ width: 6, height: 6, borderRadius: "50%", background: nt.color, flexShrink: 0, marginTop: 5 }} />}
             </div>
@@ -186,8 +186,8 @@ export function Empty({ big, title, sub, cta, onCta }) {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px" }}>
       <div style={{ fontSize: 46, marginBottom: 14, color: "rgba(212,168,67,.2)", fontFamily: F, fontWeight: 900, lineHeight: 1 }}>{big}</div>
-      <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,.3)", fontFamily: F }}>{title}</div>
-      {sub && <div style={{ fontSize: 12, color: "rgba(255,255,255,.2)", marginTop: 4, fontFamily: F }}>{sub}</div>}
+      <div style={{ fontSize: 15, fontWeight: 700, color: "rgba(255,255,255,.52)", fontFamily: F }}>{title}</div>
+      {sub && <div style={{ fontSize: 12, color: "rgba(255,255,255,.42)", marginTop: 4, fontFamily: F }}>{sub}</div>}
       {cta && <button onClick={onCta} style={{ marginTop: 18, padding: "12px 28px", background: GOLD_BTN, border: "none", borderRadius: 13, cursor: "pointer", color: "#0A0B0F", fontWeight: 800, fontSize: 14, fontFamily: F }}>{cta}</button>}
     </div>
   );
@@ -201,7 +201,7 @@ export const SectionLabel = ({ children, color = "rgba(240,237,232,.3)", style }
 export function PushCard({ state, onEnable, onDismiss }) {
   if (!state || state === "on" || state === "unsupported") return null;
   const wrap = { padding: "14px 16px", borderRadius: 14, marginBottom: 12, fontFamily: F, position: "relative" };
-  const later = onDismiss && <button onClick={onDismiss} style={{ position: "absolute", top: 10, right: 12, background: "none", border: "none", color: "rgba(255,255,255,.35)", fontSize: 12, cursor: "pointer", fontFamily: F }}>Later</button>;
+  const later = onDismiss && <button onClick={onDismiss} style={{ position: "absolute", top: 10, right: 12, background: "none", border: "none", color: "rgba(255,255,255,.57)", fontSize: 12, cursor: "pointer", fontFamily: F }}>Later</button>;
   if (state === "ios-install") {
     return (
       <div style={{ ...wrap, background: "linear-gradient(135deg,rgba(59,130,246,.14),rgba(59,130,246,.04))", border: "1px solid rgba(59,130,246,.35)" }}>

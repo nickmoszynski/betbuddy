@@ -22,7 +22,7 @@ export function WalletSheet({ wallet, profile, onClose, onAddFunds, onCashOut })
   const stat = (label, v, c) => (
     <div style={{ flex: 1 }}>
       <div style={{ fontSize: 20, fontWeight: 900, color: c, fontFamily: F, lineHeight: 1 }}>${v}</div>
-      <div style={{ fontSize: 10, color: "rgba(255,255,255,.35)", fontFamily: F, marginTop: 3 }}>{label}</div>
+      <div style={{ fontSize: 10, color: "rgba(255,255,255,.57)", fontFamily: F, marginTop: 3 }}>{label}</div>
     </div>
   );
   return (
@@ -34,7 +34,7 @@ export function WalletSheet({ wallet, profile, onClose, onAddFunds, onCashOut })
           {stat("Locked", wallet.locked, "#F97316")}
           {stat("Pending", wallet.pending, "#A855F7")}
         </div>
-        {wallet.cashing_out > 0 && <div style={{ fontSize: 11, color: "rgba(255,255,255,.45)", fontFamily: F, marginTop: 10 }}>💸 ${wallet.cashing_out} cash out on the way</div>}
+        {wallet.cashing_out > 0 && <div style={{ fontSize: 11, color: "rgba(255,255,255,.67)", fontFamily: F, marginTop: 10 }}>💸 ${wallet.cashing_out} cash out on the way</div>}
       </div>
       <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
         <button onClick={onAddFunds} style={{ flex: 1, padding: 14, background: GREEN_BTN, border: "none", borderRadius: 13, fontWeight: 800, fontSize: 14, fontFamily: F, color: "#0A0B0F", cursor: "pointer" }}>＋ Add Funds</button>
@@ -48,7 +48,7 @@ export function WalletSheet({ wallet, profile, onClose, onAddFunds, onCashOut })
             <div key={r.id} style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", background: "rgba(168,85,247,.06)", border: "1px solid rgba(168,85,247,.18)", borderRadius: 11, marginBottom: 6, fontFamily: F }}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 700 }}>{r.t === "dep" ? "Deposit being confirmed" : `Cash out to @${r.venmo}`}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,.35)" }}>{timeAgo(r.created_at)}{r.t === "wd" ? " · paid within 2–4 business days" : ` · note ${r.code}`}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,.57)" }}>{timeAgo(r.created_at)}{r.t === "wd" ? " · paid within 2–4 business days" : ` · note ${r.code}`}</div>
               </div>
               <div style={{ fontWeight: 900, color: "#A855F7" }}>${r.amount}</div>
             </div>
@@ -58,14 +58,14 @@ export function WalletSheet({ wallet, profile, onClose, onAddFunds, onCashOut })
       )}
 
       <Label>TRANSACTIONS</Label>
-      {rows === null ? <div style={{ color: "rgba(255,255,255,.3)", fontFamily: F, fontSize: 13 }}>Loading…</div>
-        : rows.length === 0 ? <div style={{ color: "rgba(255,255,255,.3)", fontFamily: F, fontSize: 13, padding: "10px 0" }}>No transactions yet — add funds to get started.</div>
+      {rows === null ? <div style={{ color: "rgba(255,255,255,.52)", fontFamily: F, fontSize: 13 }}>Loading…</div>
+        : rows.length === 0 ? <div style={{ color: "rgba(255,255,255,.52)", fontFamily: F, fontSize: 13, padding: "10px 0" }}>No transactions yet — add funds to get started.</div>
         : rows.map((r) => (
           <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: "1px solid rgba(255,255,255,.04)", fontFamily: F }}>
             <span style={{ fontSize: 15, width: 22, textAlign: "center" }}>{KIND[r.kind]?.[0]}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 600 }}>{r.memo || KIND[r.kind]?.[1]}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,.3)" }}>{timeAgo(r.created_at)}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,.52)" }}>{timeAgo(r.created_at)}</div>
             </div>
             <div style={{ fontWeight: 800, fontSize: 14, color: r.amount > 0 ? "#3DD68C" : "rgba(255,255,255,.55)" }}>{r.amount > 0 ? "+" : "−"}${Math.abs(r.amount)}</div>
           </div>
@@ -107,11 +107,11 @@ export function AddFundsSheet({ profile, onClose, onRequest }) {
             <b style={{ color: "#F0EDE8" }}>1.</b> Pay <b style={{ color: "#3B82F6" }}>@{BANK_VENMO}</b> exactly <b>${n}</b> and put this code in the note so we know it's you:
           </div>
           <button onClick={() => { navigator.clipboard?.writeText(code); setCopied(true); }} style={{ width: "100%", padding: "16px", background: "#13151C", border: "1.5px dashed rgba(232,168,56,.5)", borderRadius: 14, color: "#D4A843", fontFamily: F, fontWeight: 900, fontSize: 26, letterSpacing: "3px", cursor: "pointer", marginBottom: 6 }}>{code}</button>
-          <div style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,.35)", fontFamily: F, marginBottom: 14 }}>{copied ? "Copied ✓" : "Tap to copy"}</div>
+          <div style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,.57)", fontFamily: F, marginBottom: 14 }}>{copied ? "Copied ✓" : "Tap to copy"}</div>
           <a href={venmoPayUrl(BANK_VENMO, n, code)} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", padding: "15px", background: "#3D95CE", borderRadius: 14, color: "#fff", fontFamily: F, fontWeight: 800, fontSize: 15, textDecoration: "none", marginBottom: 18 }}>Open Venmo →</a>
           <div style={{ fontFamily: F, fontSize: 14, color: "rgba(255,255,255,.75)", marginBottom: 12 }}><b style={{ color: "#F0EDE8" }}>2.</b> Come back and tap below. Your BuddyBucks show up as soon as it's confirmed.</div>
           <BigButton bg={GREEN_BTN} disabled={busy} onClick={async () => { setBusy(true); const ok = await onRequest(n); setBusy(false); if (ok) setStep(3); }}>{busy ? "Sending…" : `✓ I sent $${n}`}</BigButton>
-          <button onClick={() => setStep(1)} style={{ marginTop: 10, background: "none", border: "none", color: "rgba(255,255,255,.35)", fontFamily: F, fontSize: 12, cursor: "pointer" }}>← Change amount</button>
+          <button onClick={() => setStep(1)} style={{ marginTop: 10, background: "none", border: "none", color: "rgba(255,255,255,.57)", fontFamily: F, fontSize: 12, cursor: "pointer" }}>← Change amount</button>
         </>
       )}
       {step === 3 && (
